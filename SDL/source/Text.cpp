@@ -37,7 +37,7 @@ namespace
 } // namespace
 
 // Global error string
-extern std::string g_ErrorString;
+extern std::string g_SDLErrorString;
 
 static inline bool FTErrorOccured(FT_Error Error)
 {
@@ -52,7 +52,7 @@ static bool ResizeFont(int FontSize)
         FT_Error FTError = FT_Set_Pixel_Sizes(s_FTFaces[i], 0, static_cast<FT_UInt>(FontSize));
         if (FTErrorOccured(FTError))
         {
-            g_ErrorString = SDL::String::GetFormattedString("Error setting pixel size for font: %i.", FTError);
+            g_SDLErrorString = SDL::String::GetFormattedString("Error setting pixel size for font: %i.", FTError);
             return false;
         }
     }
@@ -175,7 +175,7 @@ bool SDL::Text::Initialize(void)
     Result PlError = plInitialize(PlServiceType_User);
     if (R_FAILED(PlError))
     {
-        g_ErrorString = SDL::String::GetFormattedString("Error initializing Pl: 0x%X.", PlError);
+        g_SDLErrorString = SDL::String::GetFormattedString("Error initializing Pl: 0x%X.", PlError);
         return false;
     }
 
@@ -183,7 +183,7 @@ bool SDL::Text::Initialize(void)
     FT_Error FTError = FT_Init_FreeType(&s_FTLib);
     if (FTErrorOccured(FTError))
     {
-        g_ErrorString = SDL::String::GetFormattedString("Error initializing FreeType: %i.", FTError);
+        g_SDLErrorString = SDL::String::GetFormattedString("Error initializing FreeType: %i.", FTError);
         return false;
     }
 
@@ -191,7 +191,7 @@ bool SDL::Text::Initialize(void)
     Result SetError = setInitialize();
     if (R_FAILED(SetError))
     {
-        g_ErrorString = SDL::String::GetFormattedString("Error initializing set for language code: 0x%X.", SetError);
+        g_SDLErrorString = SDL::String::GetFormattedString("Error initializing set for language code: 0x%X.", SetError);
         return false;
     }
 
@@ -199,7 +199,7 @@ bool SDL::Text::Initialize(void)
     SetError = setGetLanguageCode(&LanguageCode);
     if (R_FAILED(SetError))
     {
-        g_ErrorString = SDL::String::GetFormattedString("Error getting system language code: 0x%X.", SetError);
+        g_SDLErrorString = SDL::String::GetFormattedString("Error getting system language code: 0x%X.", SetError);
         return false;
     }
     setExit();
@@ -209,7 +209,7 @@ bool SDL::Text::Initialize(void)
     PlError = plGetSharedFont(LanguageCode, SharedFont, PlSharedFontType_Total, &s_TotalFonts);
     if (R_FAILED(PlError))
     {
-        g_ErrorString = SDL::String::GetFormattedString("Error loading shared fonts: 0x%X.", PlError);
+        g_SDLErrorString = SDL::String::GetFormattedString("Error loading shared fonts: 0x%X.", PlError);
         return false;
     }
 
@@ -219,7 +219,7 @@ bool SDL::Text::Initialize(void)
         FTError = FT_New_Memory_Face(s_FTLib, reinterpret_cast<const FT_Byte *>(SharedFont[i].address), SharedFont[i].size, 0, &s_FTFaces[i]);
         if (FTErrorOccured(FTError))
         {
-            g_ErrorString = SDL::String::GetFormattedString("Error creating new memory face: %i.", FTError);
+            g_SDLErrorString = SDL::String::GetFormattedString("Error creating new memory face: %i.", FTError);
             return false;
         }
     }
@@ -241,7 +241,7 @@ void SDL::Text::Render(SDL_Texture *Target, int X, int Y, int FontSize, int Wrap
     int SDLError = SDL_SetRenderTarget(SDL::GetRenderer(), Target);
     if (SDL::ErrorOccured(SDLError))
     {
-        g_ErrorString = SDL::String::GetFormattedString("Error setting render target: %s.", SDL_GetError());
+        g_SDLErrorString = SDL::String::GetFormattedString("Error setting render target: %s.", SDL_GetError());
         return;
     }
 

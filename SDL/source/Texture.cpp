@@ -12,20 +12,20 @@ namespace
 } // namespace
 
 // Global error string
-extern std::string g_ErrorString;
+extern std::string g_SDLErrorString;
 
 SDL::Texture::Texture(const char *ImagePath)
 {
     m_Texture = IMG_LoadTexture(SDL::GetRenderer(), ImagePath);
     if (!m_Texture)
     {
-        g_ErrorString = SDL::String::GetFormattedString("Error loading texture from file: %s.", IMG_GetError());
+        g_SDLErrorString = SDL::String::GetFormattedString("Error loading texture from file: %s.", IMG_GetError());
     }
 
     int SDLError = SDL_QueryTexture(m_Texture, NULL, NULL, reinterpret_cast<int *>(&m_Width), reinterpret_cast<int *>(&m_Height));
     if (SDLError != 0)
     {
-        g_ErrorString = SDL::String::GetFormattedString(ERROR_QUERYING_TEXTURE, SDL_GetError());
+        g_SDLErrorString = SDL::String::GetFormattedString(ERROR_QUERYING_TEXTURE, SDL_GetError());
     }
 }
 
@@ -37,7 +37,7 @@ SDL::Texture::Texture(SDL_Surface *Surface, bool Free)
     m_Texture = SDL_CreateTextureFromSurface(SDL::GetRenderer(), Surface);
     if (!m_Texture)
     {
-        g_ErrorString = SDL::String::GetFormattedString(ERROR_CREATING_TEXTURE_FROM_SURFACE, SDL_GetError());
+        g_SDLErrorString = SDL::String::GetFormattedString(ERROR_CREATING_TEXTURE_FROM_SURFACE, SDL_GetError());
     }
 
     if (Free)
@@ -54,13 +54,13 @@ SDL::Texture::Texture(const void *Data, size_t DataSize)
 
     if (!m_Texture)
     {
-        g_ErrorString = SDL::String::GetFormattedString("Error loading texture from memory: %s.", IMG_GetError());
+        g_SDLErrorString = SDL::String::GetFormattedString("Error loading texture from memory: %s.", IMG_GetError());
     }
 
     int SDLError = SDL_QueryTexture(m_Texture, NULL, NULL, reinterpret_cast<int *>(&m_Width), reinterpret_cast<int *>(&m_Height));
     if (SDLError != 0)
     {
-        g_ErrorString = SDL::String::GetFormattedString(ERROR_QUERYING_TEXTURE, SDL_GetError());
+        g_SDLErrorString = SDL::String::GetFormattedString(ERROR_QUERYING_TEXTURE, SDL_GetError());
     }
 }
 
@@ -72,7 +72,7 @@ SDL::Texture::Texture(int Width, int Height, int SDLAccessFlags)
     m_Texture = SDL_CreateTexture(SDL::GetRenderer(), SDL_PIXELFORMAT_RGBA8888, SDLAccessFlags, Width, Height);
     if (!m_Texture)
     {
-        g_ErrorString = SDL::String::GetFormattedString("Error creating texture: %s.", SDL_GetError());
+        g_SDLErrorString = SDL::String::GetFormattedString("Error creating texture: %s.", SDL_GetError());
     }
 }
 
@@ -87,7 +87,7 @@ bool SDL::Texture::Render(SDL_Texture *Target, int X, int Y)
     int SDLError = SDL_SetRenderTarget(SDL::GetRenderer(), Target);
     if (SDL::ErrorOccured(SDLError))
     {
-        g_ErrorString = SDL::String::GetFormattedString(ERROR_SETTING_RENDER_TARGET, SDL_GetError());
+        g_SDLErrorString = SDL::String::GetFormattedString(ERROR_SETTING_RENDER_TARGET, SDL_GetError());
         return false;
     }
 
@@ -96,7 +96,7 @@ bool SDL::Texture::Render(SDL_Texture *Target, int X, int Y)
     SDLError = SDL_RenderCopy(SDL::GetRenderer(), m_Texture, &SourceRect, &DestinationRect);
     if (SDL::ErrorOccured(SDLError))
     {
-        g_ErrorString = SDL::String::GetFormattedString(ERROR_RENDERING_TEXTURE, SDL_GetError());
+        g_SDLErrorString = SDL::String::GetFormattedString(ERROR_RENDERING_TEXTURE, SDL_GetError());
         return false;
     }
     return true;
@@ -107,7 +107,7 @@ bool SDL::Texture::RenderStretched(SDL_Texture *Target, int X, int Y, int Width,
     int SDLError = SDL_SetRenderTarget(SDL::GetRenderer(), Target);
     if (SDL::ErrorOccured(SDLError))
     {
-        g_ErrorString = SDL::String::GetFormattedString(ERROR_SETTING_RENDER_TARGET, SDL_GetError());
+        g_SDLErrorString = SDL::String::GetFormattedString(ERROR_SETTING_RENDER_TARGET, SDL_GetError());
         return false;
     }
 
@@ -116,7 +116,7 @@ bool SDL::Texture::RenderStretched(SDL_Texture *Target, int X, int Y, int Width,
     SDLError = SDL_RenderCopy(SDL::GetRenderer(), Target, &SourceRect, &DestinationRect);
     if (SDL::ErrorOccured(SDLError))
     {
-        g_ErrorString = SDL::String::GetFormattedString(ERROR_RENDERING_TEXTURE, SDL_GetError());
+        g_SDLErrorString = SDL::String::GetFormattedString(ERROR_RENDERING_TEXTURE, SDL_GetError());
         return false;
     }
     return true;
@@ -127,7 +127,7 @@ bool SDL::Texture::RenderPart(SDL_Texture *Target, int X, int Y, int SourceX, in
     int SDLError = SDL_SetRenderTarget(SDL::GetRenderer(), Target);
     if (SDL::ErrorOccured(SDLError))
     {
-        g_ErrorString = SDL::String::GetFormattedString(ERROR_SETTING_RENDER_TARGET, SDL_GetError());
+        g_SDLErrorString = SDL::String::GetFormattedString(ERROR_SETTING_RENDER_TARGET, SDL_GetError());
         return false;
     }
 
@@ -136,7 +136,7 @@ bool SDL::Texture::RenderPart(SDL_Texture *Target, int X, int Y, int SourceX, in
     SDLError = SDL_RenderCopy(SDL::GetRenderer(), m_Texture, &SourceRect, &DestinationRect);
     if (SDL::ErrorOccured(SDLError))
     {
-        g_ErrorString = SDL::String::GetFormattedString(ERROR_RENDERING_TEXTURE, SDL_GetError());
+        g_SDLErrorString = SDL::String::GetFormattedString(ERROR_RENDERING_TEXTURE, SDL_GetError());
         return false;
     }
     return true;
@@ -155,7 +155,7 @@ bool SDL::Texture::RenderPartStretched(SDL_Texture *Target,
     int SDLError = SDL_SetRenderTarget(SDL::GetRenderer(), Target);
     if (SDL::ErrorOccured(SDLError))
     {
-        g_ErrorString = SDL::String::GetFormattedString(ERROR_SETTING_RENDER_TARGET, SDL_GetError());
+        g_SDLErrorString = SDL::String::GetFormattedString(ERROR_SETTING_RENDER_TARGET, SDL_GetError());
         return false;
     }
 
@@ -164,7 +164,7 @@ bool SDL::Texture::RenderPartStretched(SDL_Texture *Target,
     SDLError = SDL_RenderCopy(SDL::GetRenderer(), m_Texture, &SourceRect, &DestinationRect);
     if (SDL::ErrorOccured(SDLError))
     {
-        g_ErrorString = SDL::String::GetFormattedString(ERROR_RENDERING_TEXTURE, SDL_GetError());
+        g_SDLErrorString = SDL::String::GetFormattedString(ERROR_RENDERING_TEXTURE, SDL_GetError());
         return false;
     }
     return true;
@@ -175,7 +175,7 @@ bool SDL::Texture::SetColorMod(SDL::Color ColorMod)
     int SDLError = SDL_SetTextureColorMod(m_Texture, ColorMod.RGBA[3], ColorMod.RGBA[2], ColorMod.RGBA[1]);
     if (SDL::ErrorOccured(SDLError))
     {
-        g_ErrorString = SDL::String::GetFormattedString("Error setting color mod: %s.", SDL_GetError());
+        g_SDLErrorString = SDL::String::GetFormattedString("Error setting color mod: %s.", SDL_GetError());
         return false;
     }
     return true;
