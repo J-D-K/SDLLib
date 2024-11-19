@@ -196,6 +196,21 @@ bool SDL::Texture::Clear(SDL::Color ClearColor)
     return true;
 }
 
+bool SDL::Texture::Resize(int Width, int Height, int SDLAccessFlags)
+{
+    // Destroy the current texture.
+    SDL_DestroyTexture(m_Texture);
+
+    // Create a new one.
+    m_Texture = SDL_CreateTexture(SDL::GetRenderer(), SDL_PIXELFORMAT_RGBA8888, SDLAccessFlags, Width, Height);
+    if (!m_Texture)
+    {
+        g_SDLErrorString = SDL::String::GetFormattedString("Error creating texture: %s.", SDL_GetError());
+        return false;
+    }
+    return true;
+}
+
 bool SDL::Texture::SetColorMod(SDL::Color ColorMod)
 {
     int SDLError = SDL_SetTextureColorMod(m_Texture, ColorMod.RGBA[3], ColorMod.RGBA[2], ColorMod.RGBA[1]);

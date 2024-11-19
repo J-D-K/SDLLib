@@ -38,6 +38,8 @@ namespace SDL
 
             // Clears texture to ClearColor
             bool Clear(SDL::Color ClearColor);
+            // Resizes the texture to Width and Height with SDLAccessFlags
+            bool Resize(int Width, int Height, int SDLAccessFlags);
 
             // Sets color mod to texture.
             bool SetColorMod(SDL::Color ColorMod);
