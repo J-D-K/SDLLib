@@ -116,9 +116,16 @@ void SDL::FrameEnd(void)
     SDL_RenderPresent(s_Renderer);
 }
 
-bool SDL::RenderLine(int X1, int Y1, int X2, int Y2, SDL::Color LineColor)
+bool SDL::RenderLine(SDL_Texture *Target, int X1, int Y1, int X2, int Y2, SDL::Color LineColor)
 {
-    int SDLError = SDL_SetRenderDrawColor(s_Renderer, LineColor.RGBA[3], LineColor.RGBA[2], LineColor.RGBA[1], LineColor.RGBA[0]);
+    int SDLError = SDL_SetRenderTarget(s_Renderer, Target);
+    if (SDL::ErrorOccured(SDLError))
+    {
+        g_SDLErrorString = SDL::String::GetFormattedString(ERROR_SETTING_RENDER_TARGET, SDL_GetError());
+        return false;
+    }
+
+    SDLError = SDL_SetRenderDrawColor(s_Renderer, LineColor.RGBA[3], LineColor.RGBA[2], LineColor.RGBA[1], LineColor.RGBA[0]);
     if (SDL::ErrorOccured(SDLError))
     {
         g_SDLErrorString = SDL::String::GetFormattedString(ERROR_SETTING_RENDER_COLOR, SDL_GetError());
@@ -134,9 +141,16 @@ bool SDL::RenderLine(int X1, int Y1, int X2, int Y2, SDL::Color LineColor)
     return true;
 }
 
-bool SDL::RenderRectFill(int X, int Y, int Width, int Height, SDL::Color RectColor)
+bool SDL::RenderRectFill(SDL_Texture *Target, int X, int Y, int Width, int Height, SDL::Color RectColor)
 {
-    int SDLError = SDL_SetRenderDrawColor(s_Renderer, RectColor.RGBA[3], RectColor.RGBA[2], RectColor.RGBA[1], RectColor.RGBA[0]);
+    int SDLError = SDL_SetRenderTarget(s_Renderer, Target);
+    if (SDL::ErrorOccured(SDLError))
+    {
+        g_SDLErrorString = SDL::String::GetFormattedString(ERROR_SETTING_RENDER_TARGET, SDL_GetError());
+        return false;
+    }
+
+    SDLError = SDL_SetRenderDrawColor(s_Renderer, RectColor.RGBA[3], RectColor.RGBA[2], RectColor.RGBA[1], RectColor.RGBA[0]);
     if (SDL::ErrorOccured(SDLError))
     {
         g_SDLErrorString = SDL::String::GetFormattedString(ERROR_SETTING_RENDER_COLOR, SDL_GetError());

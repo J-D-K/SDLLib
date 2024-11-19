@@ -19,8 +19,8 @@ namespace SDL
     // Ends and frame and presents it to screen.
     void FrameEnd(void);
     // I don't feel like these need a separate file.
-    bool RenderLine(int X1, int Y1, int X2, int Y2, SDL::Color LineColor);
-    bool RenderRectFill(int X, int Y, int Width, int Height, SDL::Color RectColor);
+    bool RenderLine(SDL_Texture *Target, int X1, int Y1, int X2, int Y2, SDL::Color LineColor);
+    bool RenderRectFill(SDL_Texture *Target, int X, int Y, int Width, int Height, SDL::Color RectColor);
 
     // I got tired of type SDLError != 0.
     inline bool ErrorOccured(int SDLError)
