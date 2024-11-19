@@ -2,7 +2,7 @@
 
 all: SDL TestApp
 
-SwDL:
+SDL:
 	$(MAKE) -C SDL
 
 TestApp: SwDL
