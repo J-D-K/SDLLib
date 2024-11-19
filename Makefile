@@ -5,7 +5,7 @@ all: SDL TestApp
 SDL:
 	$(MAKE) -C SDL
 
-TestApp: SwDL
+TestApp: SDL
 	$(MAKE) -C TestApp
 
 clean:

@@ -60,7 +60,7 @@ static bool ResizeFont(int FontSize)
 }
 
 // Just returns if the codepoint passed is in the array of points to break a line at.
-static bool IsBreakableCharacter(uint32_t Codepoint)
+static inline bool IsBreakableCharacter(uint32_t Codepoint)
 {
     if (std::find(s_Breakpoints.begin(), s_Breakpoints.end(), Codepoint) == s_Breakpoints.end())
     {
@@ -151,7 +151,7 @@ static GlyphData *LoadGetGlyph(uint32_t Codepoint, int FontSize)
 }
 
 // This function handles special characters that change text color.
-static bool ProcessSpecialCharacters(uint32_t Codepoint, SDL::Color OriginalColor, SDL::Color &TextColor)
+static inline bool ProcessSpecialCharacters(uint32_t Codepoint, SDL::Color OriginalColor, SDL::Color &TextColor)
 {
     if (s_SpecialCharacterMap.find(Codepoint) == s_SpecialCharacterMap.end())
     {
