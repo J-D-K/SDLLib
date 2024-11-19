@@ -170,6 +170,32 @@ bool SDL::Texture::RenderPartStretched(SDL_Texture *Target,
     return true;
 }
 
+// This was a needed last second thing. Probably works fine, but testing later.
+bool SDL::Texture::Clear(SDL::Color ClearColor)
+{
+    int SDLError = SDL_SetRenderDrawColor(SDL::GetRenderer(), ClearColor.RGBA[3], ClearColor.RGBA[2], ClearColor.RGBA[1], ClearColor.RGBA[0]);
+    if (SDL::ErrorOccured(SDLError))
+    {
+        g_SDLErrorString = SDL::String::GetFormattedString("Error setting renderer draw color: %s.", SDL_GetError());
+        return false;
+    }
+
+    SDLError = SDL_SetRenderTarget(SDL::GetRenderer(), m_Texture);
+    if (SDL::ErrorOccured(SDLError))
+    {
+        g_SDLErrorString = SDL::String::GetFormattedString(ERROR_SETTING_RENDER_TARGET, SDL_GetError());
+        return false;
+    }
+
+    SDLError = SDL_RenderClear(SDL::GetRenderer());
+    if (SDL::ErrorOccured(SDLError))
+    {
+        g_SDLErrorString = SDL::String::GetFormattedString("Error clearing renderer: %s.", SDL_GetError());
+        return false;
+    }
+    return true;
+}
+
 bool SDL::Texture::SetColorMod(SDL::Color ColorMod)
 {
     int SDLError = SDL_SetTextureColorMod(m_Texture, ColorMod.RGBA[3], ColorMod.RGBA[2], ColorMod.RGBA[1]);

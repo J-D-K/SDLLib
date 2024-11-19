@@ -36,6 +36,9 @@ namespace SDL
                                      int DestinationWidth,
                                      int DestinationHeight);
 
+            // Clears texture to ClearColor
+            bool Clear(SDL::Color ClearColor);
+
             // Sets color mod to texture.
             bool SetColorMod(SDL::Color ColorMod);
 
