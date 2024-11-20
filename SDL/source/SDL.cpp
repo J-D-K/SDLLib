@@ -80,6 +80,11 @@ void SDL::Exit(void)
     SDL_Quit();
 }
 
+const char *SDL::GetErrorString(void)
+{
+    return g_SDLErrorString.c_str();
+}
+
 SDL_Renderer *SDL::GetRenderer(void)
 {
     return s_Renderer;
