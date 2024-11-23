@@ -28,15 +28,17 @@ namespace SDL
 
                 TextureManager &Manager = TextureManager::GetInstance();
 
-                if (Manager.m_TextureMap.find(TextureName) != Manager.m_TextureMap.end() && !Manager.m_TextureMap.at(TextureName).expired())
+                if (Manager.m_TextureMap.find(TextureName.data()) != Manager.m_TextureMap.end() &&
+                    !Manager.m_TextureMap.at(TextureName.data()).expired())
                 {
-                    ReturnTexture = Manager.m_TextureMap.at(TextureName).lock();
+                    ReturnTexture = Manager.m_TextureMap.at(TextureName.data()).lock();
                 }
                 else
                 {
                     ReturnTexture = std::make_shared<SDL::Texture>(Arguments...);
-                }
 
+                    Manager.m_TextureMap[TextureName.data()] = ReturnTexture;
+                }
                 return ReturnTexture;
             }
 
@@ -49,6 +51,6 @@ namespace SDL
                 return Instance;
             }
             // Map of weak_ptrs to textures so they free automatically after they expire.
-            std::unordered_map<std::string_view, std::weak_ptr<SDL::Texture>> m_TextureMap;
+            static inline std::unordered_map<std::string, std::weak_ptr<SDL::Texture>> m_TextureMap;
     };
 } // namespace SDL
