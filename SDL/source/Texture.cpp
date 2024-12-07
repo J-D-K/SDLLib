@@ -123,7 +123,7 @@ bool SDL::Texture::RenderStretched(SDL_Texture *Target, int X, int Y, int Width,
 
     SDL_Rect SourceRect = {.x = 0, .y = 0, .w = m_Width, .h = m_Height};
     SDL_Rect DestinationRect = {.x = X, .y = Y, .w = Width, .h = Height};
-    SDLError = SDL_RenderCopy(SDL::GetRenderer(), Target, &SourceRect, &DestinationRect);
+    SDLError = SDL_RenderCopy(SDL::GetRenderer(), m_Texture, &SourceRect, &DestinationRect);
     if (SDL::ErrorOccured(SDLError))
     {
         g_SDLErrorString = SDL::String::GetFormattedString(ERROR_RENDERING_TEXTURE, SDL_GetError());
