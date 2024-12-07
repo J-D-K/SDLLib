@@ -51,5 +51,7 @@ namespace SDL
             SDL_Texture *m_Texture;
             // Width and height so I don't need to query for it.
             int16_t m_Width, m_Height;
+            // This makes sure blending is enabled for transparency.
+            void EnableBlending(void);
     };
 } // namespace SDL

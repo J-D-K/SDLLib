@@ -27,6 +27,7 @@ SDL::Texture::Texture(const char *ImagePath)
     {
         g_SDLErrorString = SDL::String::GetFormattedString(ERROR_QUERYING_TEXTURE, SDL_GetError());
     }
+    Texture::EnableBlending();
 }
 
 SDL::Texture::Texture(SDL_Surface *Surface, bool Free)
@@ -44,6 +45,8 @@ SDL::Texture::Texture(SDL_Surface *Surface, bool Free)
     {
         SDL_FreeSurface(Surface);
     }
+
+    Texture::EnableBlending();
 }
 
 SDL::Texture::Texture(const void *Data, size_t DataSize)
@@ -62,6 +65,7 @@ SDL::Texture::Texture(const void *Data, size_t DataSize)
     {
         g_SDLErrorString = SDL::String::GetFormattedString(ERROR_QUERYING_TEXTURE, SDL_GetError());
     }
+    Texture::EnableBlending();
 }
 
 SDL::Texture::Texture(int Width, int Height, int SDLAccessFlags)
@@ -74,6 +78,7 @@ SDL::Texture::Texture(int Width, int Height, int SDLAccessFlags)
     {
         g_SDLErrorString = SDL::String::GetFormattedString("Error creating texture: %s.", SDL_GetError());
     }
+    Texture::EnableBlending();
 }
 
 SDL::Texture::~Texture()
@@ -225,4 +230,13 @@ bool SDL::Texture::SetColorMod(SDL::Color ColorMod)
         return false;
     }
     return true;
+}
+
+void SDL::Texture::EnableBlending(void)
+{
+    int SDLError = SDL_SetTextureBlendMode(m_Texture, SDL_BLENDMODE_BLEND);
+    if (SDLError != 0)
+    {
+        g_SDLErrorString = SDL::String::GetFormattedString("Error setting blendmode for texture: %s.", SDL_GetError());
+    }
 }
