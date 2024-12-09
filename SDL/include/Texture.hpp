@@ -45,8 +45,6 @@ namespace SDL
             bool Resize(int Width, int Height, int SDLAccessFlags);
             // Sets color mod to texture.
             bool SetColorMod(SDL::Color ColorMod);
-            // Operator that allows this to be passed instead of calling a get.
-            operator SDL_Texture *(void);
 
         private:
             // Underlying texture.

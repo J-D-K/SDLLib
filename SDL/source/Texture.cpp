@@ -232,11 +232,6 @@ bool SDL::Texture::SetColorMod(SDL::Color ColorMod)
     return true;
 }
 
-SDL::Texture::operator SDL_Texture *(void)
-{
-    return m_Texture;
-}
-
 void SDL::Texture::EnableBlending(void)
 {
     int SDLError = SDL_SetTextureBlendMode(m_Texture, SDL_BLENDMODE_BLEND);
