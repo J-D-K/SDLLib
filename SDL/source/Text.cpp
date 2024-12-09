@@ -10,6 +10,7 @@
 #include <string>
 #include <switch.h>
 #include FT_FREETYPE_H
+#include FT_OUTLINE_H
 
 namespace
 {
@@ -99,7 +100,7 @@ static GlyphData *LoadGetGlyph(uint32_t Codepoint, int FontSize)
     for (int32_t i = 0; i < s_TotalFonts; i++)
     {
         FT_UInt CodepointIndex = FT_Get_Char_Index(s_FTFaces[i], Codepoint);
-        FT_Error FTError = FT_Load_Glyph(s_FTFaces[i], CodepointIndex, FT_LOAD_RENDER);
+        FT_Error FTError = FT_Load_Glyph(s_FTFaces[i], CodepointIndex, FT_LOAD_DEFAULT);
         if (CodepointIndex != 0 && !FTErrorOccured(FTError))
         {
             GlyphSlot = s_FTFaces[i]->glyph;
@@ -109,6 +110,13 @@ static GlyphData *LoadGetGlyph(uint32_t Codepoint, int FontSize)
 
     // If it wasn't found, just NULL here.
     if (!GlyphSlot)
+    {
+        return NULL;
+    }
+
+    // I like the font a little bolder, so this is an extra step. I don't care if the first fails, but if it does this will look weird.
+    FT_Outline_Embolden(&GlyphSlot->outline, ((static_cast<double>(FontSize) / 64.0f) * 100.0f));
+    if (FT_Render_Glyph(GlyphSlot, FT_RENDER_MODE_NORMAL) != 0)
     {
         return NULL;
     }
