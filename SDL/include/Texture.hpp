@@ -19,6 +19,9 @@ namespace SDL
             // Frees the texture.
             ~Texture();
 
+            // Returns underlying texture pointer.
+            SDL_Texture *Get(void);
+
             // Renders texture as-is to X and Y.
             bool Render(SDL_Texture *Target, int X, int Y);
             // Renders texture stretched to Width and Height at X and Y.
