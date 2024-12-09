@@ -19,9 +19,6 @@ namespace SDL
             // Frees the texture.
             ~Texture();
 
-            // Returns the underlying SDL_Texture pointer.
-            SDL_Texture *Get(void);
-
             // Renders texture as-is to X and Y.
             bool Render(SDL_Texture *Target, int X, int Y);
             // Renders texture stretched to Width and Height at X and Y.
@@ -45,6 +42,8 @@ namespace SDL
             bool Resize(int Width, int Height, int SDLAccessFlags);
             // Sets color mod to texture.
             bool SetColorMod(SDL::Color ColorMod);
+            // Operator that allows this to be passed instead of calling a get.
+            operator SDL_Texture *(void);
 
         private:
             // Underlying texture.

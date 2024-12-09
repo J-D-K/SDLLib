@@ -87,11 +87,6 @@ SDL::Texture::~Texture()
     SDL_DestroyTexture(m_Texture);
 }
 
-SDL_Texture *SDL::Texture::Get(void)
-{
-    return m_Texture;
-}
-
 bool SDL::Texture::Render(SDL_Texture *Target, int X, int Y)
 {
     int SDLError = SDL_SetRenderTarget(SDL::GetRenderer(), Target);
@@ -230,6 +225,11 @@ bool SDL::Texture::SetColorMod(SDL::Color ColorMod)
         return false;
     }
     return true;
+}
+
+SDL::Texture::operator SDL_Texture *(void)
+{
+    return m_Texture;
 }
 
 void SDL::Texture::EnableBlending(void)
