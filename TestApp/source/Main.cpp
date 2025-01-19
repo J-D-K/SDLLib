@@ -1,40 +1,39 @@
-#include "SDL.hpp"
+#include "sdl.hpp"
 #include <switch.h>
 
-static constexpr SDL::Color BLACK = {0x000000FF};
-static constexpr SDL::Color WHITE = {0xFFFFFFFF};
+static constexpr sdl::Color BLACK = {0x000000FF};
+static constexpr sdl::Color WHITE = {0xFFFFFFFF};
 
 int main(void)
 {
-    if (!SDL::Initialize("Test App", 1280, 720))
+    if (!sdl::initialize("sdl test app", 1280, 720))
     {
         return -1;
     }
 
-    if (!SDL::Text::Initialize())
+    if (!sdl::text::initialize())
     {
         return -2;
     }
 
-    PadState Gamepad;
+    PadState gamePad;
     padConfigureInput(1, HidNpadStyleSet_NpadStandard);
-    padInitializeDefault(&Gamepad);
+    padInitializeDefault(&gamePad);
 
-    while (true)
+    while (appletMainLoop())
     {
-        padUpdate(&Gamepad);
+        padUpdate(&gamePad);
 
-        if (padGetButtons(&Gamepad) & HidNpadButton_Plus)
+        if (padGetButtonsDown(&gamePad) & HidNpadButton_Plus)
         {
             break;
         }
 
-        SDL::FrameBegin(BLACK);
-        SDL::Text::Render(NULL, 0, 0, 18, SDL::Text::NO_TEXT_WRAP, WHITE, "Text here.\nPress \uE0EF to exit.");
-        SDL::FrameEnd();
+        sdl::frameBegin(WHITE);
+        sdl::text::render(NULL, 32, 32, 18, sdl::text::NO_TEXT_WRAP, BLACK, "Text here.\nPress \uE0EF to exit.");
+        sdl::frameEnd();
     }
-
-    SDL::Text::Exit();
-    SDL::Exit();
+    sdl::text::exit();
+    sdl::exit();
     return 0;
 }
