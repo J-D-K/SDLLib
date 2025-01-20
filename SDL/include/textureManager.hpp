@@ -6,22 +6,26 @@
 
 namespace sdl
 {
+    /// @brief Definition of type so I don't hurt my poor hands typing too much.
     using SharedTexture = std::shared_ptr<sdl::Texture>;
 
-    // JKSV only uses textures. There's no point in making this generic for more types for now, I guess.
+    /// @brief Static class that keeps track of textures so I don't need to worry about memory leaks.
     class TextureManager
     {
         public:
-            // There is only one instance and it can't be copied.
+            /// @brief Prevents copying the manage.
             TextureManager(const TextureManager &) = delete;
+            /// @brief Prevents copying the manage.
             TextureManager(TextureManager &&) = delete;
+            /// @brief Prevents copying the manage.
             TextureManager &operator=(const TextureManager &) = delete;
+            /// @brief Prevents copying the manage.
             TextureManager &operator=(TextureManager &&) = delete;
 
-            /*
-                Refer to texture.hpp for how this works completely.
-                sdl::sharedTexture = sdl::TextureManager::createLoadTexture(TextureName, [Arguments for Texture constructor you're using here.]);
-            */
+            /// @brief Searches for and either returns or creates a new sdl::Sharedtexture.
+            /// @param textureName Name of the texture. This is needed to map it and keep track of it.
+            /// @param arguments Arguments of the constructor used. See texture.hpp for that.
+            /// @return sdl::SharedTexture.
             template <typename... args>
             static sdl::SharedTexture createLoadTexture(std::string_view textureName, args... arguments)
             {
@@ -49,14 +53,18 @@ namespace sdl
             }
 
         private:
-            // No constructing.
+            /// @brief Prevents creating an instance of this class.
             TextureManager(void) = default;
+
+            /// @brief Returns the only instance of the class. Private since it shouldn't be used outside of this class.
+            /// @return Reference to the static instance of this class.
             static TextureManager &getInstance(void)
             {
                 static TextureManager Instance;
                 return Instance;
             }
-            // Map of weak_ptrs to textures so they free automatically after they expire.
+
+            /// @brief Map of weak_ptrs to textures so they are freed automatically once they're not needed anymore.
             static inline std::unordered_map<std::string, std::weak_ptr<sdl::Texture>> sm_textureMap;
     };
 } // namespace sdl

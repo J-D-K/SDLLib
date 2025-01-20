@@ -2,9 +2,11 @@
 #include <cstdarg>
 #include <string>
 
-// This is only used internally to set the error string. It is not exposed.
 namespace string
 {
-    // Returns a C++ string from a formatted C string.
+    /// @brief Takes in a va_list style format string and returns the output as a C++ string.
+    /// @param format Format of string.
+    /// @param Arguments
+    /// @return Formatted C++ string.
     std::string getFormattedString(const char *format, ...);
 } // namespace string

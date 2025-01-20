@@ -1,14 +1,15 @@
 #pragma once
 #include <cstdint>
 
-// This isn't really part of SDL. Just my own way of handling this stuff.
 namespace sdl
 {
+    /// @brief This isn't really a part of SDL. I just like handling RGBA this way.
     union Color
     {
-            // Not sure what else to name these...
+            /// @brief RAW 32 bit pixel.
             uint32_t raw;
-            // This is backwards from how you'd think it is.
+
+            /// @brief 32 bit pixel split into four to make accessing the values easier.
             uint8_t rgba[4];
     };
 } // namespace sdl
