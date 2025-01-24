@@ -1,5 +1,5 @@
 #pragma once
-#include "color.hpp"
+#include "Color.hpp"
 #include <SDL2/SDL.h>
 
 namespace sdl

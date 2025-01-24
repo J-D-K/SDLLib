@@ -1,5 +1,5 @@
 #pragma once
-#include "texture.hpp"
+#include "Texture.hpp"
 #include <memory>
 #include <string>
 #include <unordered_map>

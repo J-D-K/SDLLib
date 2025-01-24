@@ -1,7 +1,7 @@
 #pragma once
-#include "color.hpp"
+#include "Color.hpp"
+#include "TextureManager.hpp"
 #include "text.hpp"
-#include "textureManager.hpp"
 #include <SDL2/SDL.h>
 
 namespace sdl
