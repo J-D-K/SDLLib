@@ -20,6 +20,8 @@ int main(void)
     padConfigureInput(1, HidNpadStyleSet_NpadStandard);
     padInitializeDefault(&gamePad);
 
+    size_t testWidth = sdl::text::getWidth(18, "Test text");
+
     while (appletMainLoop())
     {
         padUpdate(&gamePad);

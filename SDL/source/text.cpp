@@ -319,7 +319,7 @@ size_t sdl::text::getWidth(int fontSize, const char *string)
 
     for (size_t i = 0; i < stringLength;)
     {
-        i += decode_utf8(&codepoint, reinterpret_cast<const uint8_t *>(string[i]));
+        i += decode_utf8(&codepoint, reinterpret_cast<const uint8_t *>(&string[i]));
 
         if (processSpecialCharacters(codepoint, tempColor, tempColor) || codepoint == L'\n')
         {
