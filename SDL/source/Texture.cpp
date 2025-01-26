@@ -160,6 +160,14 @@ bool sdl::Texture::clear(sdl::Color color)
     {
         return false;
     }
+
+    int sdlError = SDL_RenderClear(sdl::getRenderer());
+    if (sdl::errorOccurred(sdlError))
+    {
+        g_sdlErrorString = string::getFormattedString("Error clearing texture: %s", SDL_GetError());
+        return false;
+    }
+
     return true;
 }
 
