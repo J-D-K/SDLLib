@@ -32,11 +32,11 @@ namespace sdl
         /// @param fontSize Size of the font in pixels.
         /// @param string  String to get the width of.
         /// @return Width of string in pixels.
-        size_t getWidth(int fontSize, const char *string);
+        size_t get_width(int fontSize, const char *string);
 
         /// @brief Adds a special character that changes the rendering color of text.
         /// @param codepoint Character to use.
         /// @param color Color it changes text to in between two occurrences of the character to.
-        void addColorCharacter(uint32_t codepoint, sdl::Color color);
+        void add_color_character(uint32_t codepoint, sdl::Color color);
     } // namespace text
 } // namespace sdl

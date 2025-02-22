@@ -46,20 +46,20 @@ namespace
 extern std::string g_sdlErrorString;
 
 // This is so I have to type less cause I have carpal tunnel so I'm allowed to be lazy.
-static inline bool ftErrorOccurred(FT_Error error)
+static inline bool freetype_error_occurred(FT_Error error)
 {
     return error != 0;
 }
 
 // Resizes Freetype faces to fontSize in pixes.
-static bool resizeFont(int fontSize)
+static bool resize_font(int fontSize)
 {
     for (int32_t i = 0; i < s_totalFonts; i++)
     {
         FT_Error ftError = FT_Set_Pixel_Sizes(s_ftFaces[i], 0, static_cast<FT_UInt>(fontSize));
-        if (ftErrorOccurred(ftError))
+        if (freetype_error_occurred(ftError))
         {
-            g_sdlErrorString = string::getFormattedString("Error setting pixel size for font: %i.", ftError);
+            g_sdlErrorString = string::get_formatted_string("Error setting pixel size for font: %i.", ftError);
             return false;
         }
     }
@@ -67,7 +67,7 @@ static bool resizeFont(int fontSize)
 }
 
 // Finds the next available point to break at and returns a pointer to it.
-static size_t findNextBreakpoint(const char *string)
+static size_t find_next_breakpoint(const char *string)
 {
     uint32_t codepoint = 0;
     size_t stringLength = std::char_traits<char>::length(string);
@@ -83,7 +83,7 @@ static size_t findNextBreakpoint(const char *string)
     return stringLength;
 }
 
-static GlyphData *loadGlyph(uint32_t codepoint, int fontSize)
+static GlyphData *load_glyph(uint32_t codepoint, int fontSize)
 {
     // Search cache map for glyph first.
     auto glyphCachePair = std::make_pair(codepoint, fontSize);
@@ -98,7 +98,7 @@ static GlyphData *loadGlyph(uint32_t codepoint, int fontSize)
     {
         FT_UInt codepointIndex = FT_Get_Char_Index(s_ftFaces[i], codepoint);
         FT_Error ftError = FT_Load_Glyph(s_ftFaces[i], codepointIndex, FT_LOAD_RENDER);
-        if (codepointIndex != 0 && !ftErrorOccurred(ftError))
+        if (codepointIndex != 0 && !freetype_error_occurred(ftError))
         {
             glyphSlot = s_ftFaces[i]->glyph;
             break;
@@ -114,7 +114,8 @@ static GlyphData *loadGlyph(uint32_t codepoint, int fontSize)
     // We're just going to assume it's gray.
     FT_Bitmap glyphBitmap = glyphSlot->bitmap;
     // Create surface to convert to texture.
-    SDL_Surface *glyphSurface = SDL_CreateRGBSurface(0, glyphBitmap.width, glyphBitmap.rows, 32, RED_MASK, GREEN_MASK, BLUE_MASK, ALPHA_MASK);
+    SDL_Surface *glyphSurface =
+        SDL_CreateRGBSurface(0, glyphBitmap.width, glyphBitmap.rows, 32, RED_MASK, GREEN_MASK, BLUE_MASK, ALPHA_MASK);
     // Bail if we couldn't allocated surface.
     if (!glyphSurface)
     {
@@ -139,13 +140,14 @@ static GlyphData *loadGlyph(uint32_t codepoint, int fontSize)
                                       .advanceX = static_cast<int16_t>(glyphSlot->advance.x >> 6),
                                       .top = static_cast<int16_t>(glyphSlot->bitmap_top),
                                       .left = static_cast<int16_t>(glyphSlot->bitmap_left),
-                                      .glyphTexture = sdl::TextureManager::createLoadTexture(glyphName, glyphSurface)};
+                                      .glyphTexture =
+                                          sdl::TextureManager::create_load_texture(glyphName, glyphSurface)};
 
     return &s_fontCacheMap.at(glyphCachePair);
 }
 
 // This function handles special characters that change text color.
-static inline bool processSpecialCharacters(uint32_t codepoint, sdl::Color originalColor, sdl::Color &textColor)
+static inline bool process_special_characters(uint32_t codepoint, sdl::Color originalColor, sdl::Color &textColor)
 {
     if (s_specialCharacterMap.find(codepoint) == s_specialCharacterMap.end())
     {
@@ -169,21 +171,21 @@ bool sdl::text::initialize(void)
     Result plError = plInitialize(PlServiceType_User);
     if (R_FAILED(plError))
     {
-        g_sdlErrorString = string::getFormattedString("Error initializing pl: 0x%X.", plError);
+        g_sdlErrorString = string::get_formatted_string("Error initializing pl: 0x%X.", plError);
         return false;
     }
 
     FT_Error ftError = FT_Init_FreeType(&s_ftLib);
-    if (ftErrorOccurred(ftError))
+    if (freetype_error_occurred(ftError))
     {
-        g_sdlErrorString = string::getFormattedString("Error initializing FreeType: %i.", ftError);
+        g_sdlErrorString = string::get_formatted_string("Error initializing FreeType: %i.", ftError);
         return false;
     }
 
     Result setError = setInitialize();
     if (R_FAILED(setError))
     {
-        g_sdlErrorString = string::getFormattedString("Error initializing set: 0x%X.", setError);
+        g_sdlErrorString = string::get_formatted_string("Error initializing set: 0x%X.", setError);
         return false;
     }
 
@@ -191,7 +193,7 @@ bool sdl::text::initialize(void)
     setError = setGetLanguageCode(&languageCode);
     if (R_FAILED(setError))
     {
-        g_sdlErrorString = string::getFormattedString("Error getting language code: 0x%X.", setError);
+        g_sdlErrorString = string::get_formatted_string("Error getting language code: 0x%X.", setError);
         return false;
     }
 
@@ -200,16 +202,20 @@ bool sdl::text::initialize(void)
     plError = plGetSharedFont(languageCode, sharedFont, PlSharedFontType_Total, &s_totalFonts);
     if (R_FAILED(plError))
     {
-        g_sdlErrorString = string::getFormattedString("Error loading shared fonts: 0x%X.", plError);
+        g_sdlErrorString = string::get_formatted_string("Error loading shared fonts: 0x%X.", plError);
         return false;
     }
 
     for (int32_t i = 0; i < s_totalFonts; i++)
     {
-        ftError = FT_New_Memory_Face(s_ftLib, reinterpret_cast<const FT_Byte *>(sharedFont[i].address), sharedFont[i].size, 0, &s_ftFaces[i]);
-        if (ftErrorOccurred(ftError))
+        ftError = FT_New_Memory_Face(s_ftLib,
+                                     reinterpret_cast<const FT_Byte *>(sharedFont[i].address),
+                                     sharedFont[i].size,
+                                     0,
+                                     &s_ftFaces[i]);
+        if (freetype_error_occurred(ftError))
         {
-            g_sdlErrorString = string::getFormattedString("Error creating new memory face: %i.", ftError);
+            g_sdlErrorString = string::get_formatted_string("Error creating new memory face: %i.", ftError);
             return false;
         }
     }
@@ -227,9 +233,16 @@ void sdl::text::exit(void)
     plExit();
 }
 
-void sdl::text::render(SDL_Texture *target, int x, int y, int fontSize, int wrapWidth, sdl::Color color, const char *format, ...)
+void sdl::text::render(SDL_Texture *target,
+                       int x,
+                       int y,
+                       int fontSize,
+                       int wrapWidth,
+                       sdl::Color color,
+                       const char *format,
+                       ...)
 {
-    if (!sdl::setRenderTarget(target))
+    if (!sdl::set_render_target(target))
     {
         return;
     }
@@ -240,7 +253,7 @@ void sdl::text::render(SDL_Texture *target, int x, int y, int fontSize, int wrap
     sdl::Color workingColor = color;
 
     // Resize the font
-    resizeFont(fontSize);
+    resize_font(fontSize);
 
     // va string
     char vaBuffer[VA_BUFFER_SIZE] = {0};
@@ -257,13 +270,13 @@ void sdl::text::render(SDL_Texture *target, int x, int y, int fontSize, int wrap
         char wordBuffer[WORD_BUFFER_SIZE] = {0};
 
         // Get the length until the next point we can break a line at, memcpy it to wordBuffer and hope really hard it doesn't write out of bounds.
-        size_t wordLength = findNextBreakpoint(&vaBuffer[i]);
+        size_t wordLength = find_next_breakpoint(&vaBuffer[i]);
         std::memcpy(wordBuffer, &vaBuffer[i], wordLength);
 
         // If -1 was passed as wrap width, check if we need to wrap to the next line.
         if (wrapWidth != sdl::text::NO_TEXT_WRAP)
         {
-            size_t wordWidth = sdl::text::getWidth(fontSize, wordBuffer);
+            size_t wordWidth = sdl::text::get_width(fontSize, wordBuffer);
             if (workingX + wordWidth >= static_cast<unsigned int>(x + wrapWidth))
             {
                 workingX = x;
@@ -280,7 +293,7 @@ void sdl::text::render(SDL_Texture *target, int x, int y, int fontSize, int wrap
             j += decode_utf8(&codepoint, reinterpret_cast<const uint8_t *>(&wordBuffer[j]));
 
             // Handle special characters and line breaks.
-            if (processSpecialCharacters(codepoint, color, workingColor))
+            if (process_special_characters(codepoint, color, workingColor))
             {
                 continue;
             }
@@ -291,10 +304,10 @@ void sdl::text::render(SDL_Texture *target, int x, int y, int fontSize, int wrap
                 continue;
             }
 
-            GlyphData *glyph = loadGlyph(codepoint, fontSize);
+            GlyphData *glyph = load_glyph(codepoint, fontSize);
             if (glyph && codepoint != L' ')
             {
-                glyph->glyphTexture->setColorMod(workingColor);
+                glyph->glyphTexture->set_color_mod(workingColor);
                 glyph->glyphTexture->render(target, workingX + glyph->left, workingY + (fontSize - glyph->top));
                 workingX += glyph->advanceX;
             }
@@ -307,26 +320,26 @@ void sdl::text::render(SDL_Texture *target, int x, int y, int fontSize, int wrap
     }
 }
 
-size_t sdl::text::getWidth(int fontSize, const char *string)
+size_t sdl::text::get_width(int fontSize, const char *string)
 {
     uint32_t codepoint = 0;
     size_t stringWidth = 0;
     size_t stringLength = std::char_traits<char>::length(string);
-    // This is to pass to the processSpecialCharacters function
+    // This is to pass to the process_special_characters function
     sdl::Color tempColor = {0x00000000};
 
-    resizeFont(fontSize);
+    resize_font(fontSize);
 
     for (size_t i = 0; i < stringLength;)
     {
         i += decode_utf8(&codepoint, reinterpret_cast<const uint8_t *>(&string[i]));
 
-        if (processSpecialCharacters(codepoint, tempColor, tempColor) || codepoint == L'\n')
+        if (process_special_characters(codepoint, tempColor, tempColor) || codepoint == L'\n')
         {
             continue;
         }
 
-        GlyphData *glyph = loadGlyph(codepoint, fontSize);
+        GlyphData *glyph = load_glyph(codepoint, fontSize);
         if (glyph)
         {
             stringWidth += glyph->advanceX;
@@ -335,7 +348,7 @@ size_t sdl::text::getWidth(int fontSize, const char *string)
     return stringWidth;
 }
 
-void sdl::text::addColorCharacter(uint32_t codepoint, sdl::Color color)
+void sdl::text::add_color_character(uint32_t codepoint, sdl::Color color)
 {
     s_specialCharacterMap[codepoint] = color;
 }

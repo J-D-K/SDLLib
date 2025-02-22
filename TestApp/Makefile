@@ -156,10 +156,13 @@ ifneq ($(ROMFS),)
 	export NROFLAGS += --romfsdir=$(CURDIR)/$(ROMFS)
 endif
 
-.PHONY: $(BUILD) clean all
+.PHONY: $(BUILD) clean all send
 
 #---------------------------------------------------------------------------------
 all: $(BUILD)
+
+send: $(BUILD)
+	@nxlink $(TARGET).nro
 
 $(BUILD):
 	@[ -d $@ ] || mkdir -p $@

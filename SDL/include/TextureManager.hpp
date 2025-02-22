@@ -27,13 +27,13 @@ namespace sdl
             /// @param arguments Arguments of the constructor used. See texture.hpp for that.
             /// @return sdl::SharedTexture.
             template <typename... args>
-            static sdl::SharedTexture createLoadTexture(std::string_view textureName, args... arguments)
+            static sdl::SharedTexture create_load_texture(std::string_view textureName, args... arguments)
             {
                 // This is the pointer we're returning.
                 sdl::SharedTexture returnTexture = nullptr;
 
                 // Need the instance to do anything, really.
-                TextureManager &manager = TextureManager::getInstance();
+                TextureManager &manager = TextureManager::get_instance();
 
                 // Search the map first to see if the texture is already loaded and that the pointer hasn't expired.
                 if (manager.sm_textureMap.find(textureName.data()) != manager.sm_textureMap.end() &&
@@ -58,7 +58,7 @@ namespace sdl
 
             /// @brief Returns the only instance of the class. Private since it shouldn't be used outside of this class.
             /// @return Reference to the static instance of this class.
-            static TextureManager &getInstance(void)
+            static TextureManager &get_instance(void)
             {
                 static TextureManager Instance;
                 return Instance;

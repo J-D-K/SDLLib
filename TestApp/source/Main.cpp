@@ -20,7 +20,7 @@ int main(void)
     padConfigureInput(1, HidNpadStyleSet_NpadStandard);
     padInitializeDefault(&gamePad);
 
-    size_t testWidth = sdl::text::getWidth(18, "Test text");
+    size_t testWidth = sdl::text::get_width(18, "Test text");
 
     while (appletMainLoop())
     {
@@ -31,9 +31,9 @@ int main(void)
             break;
         }
 
-        sdl::frameBegin(WHITE);
+        sdl::frame_begin(WHITE);
         sdl::text::render(NULL, 32, 32, 18, sdl::text::NO_TEXT_WRAP, BLACK, "Text here.\nPress \uE0EF to exit.");
-        sdl::frameEnd();
+        sdl::frame_end();
     }
     sdl::text::exit();
     sdl::exit();
