@@ -14,15 +14,15 @@ namespace sdl
     bool initialize(const char *windowTitle, int windowWidth, int windowHeight);
 
     /// @brief Quits SDL
-    void exit(void);
+    void exit();
 
     /// @brief Returns the error string.
     /// @return Error string.
-    const char *get_error_string(void);
+    const char *get_error_string();
 
     /// @brief Returns pointer to SDL_Renderer if needed.
     /// @return Pointer to SDL_Renderer.
-    SDL_Renderer *get_renderer(void);
+    SDL_Renderer *get_renderer();
 
     /// @brief Begins a frame and clears it to color.
     /// @param color Color to clear the frame to.
@@ -30,7 +30,7 @@ namespace sdl
     bool frame_begin(sdl::Color color);
 
     /// @brief Ends a frame and presents it to screen.
-    void frame_end(void);
+    void frame_end();
 
     /// @brief Sets the current render target texture.
     /// @param target Target texture.

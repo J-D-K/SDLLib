@@ -54,11 +54,11 @@ namespace sdl
 
         private:
             /// @brief Prevents creating an instance of this class.
-            TextureManager(void) = default;
+            TextureManager() = default;
 
             /// @brief Returns the only instance of the class. Private since it shouldn't be used outside of this class.
             /// @return Reference to the static instance of this class.
-            static TextureManager &get_instance(void)
+            static TextureManager &get_instance()
             {
                 static TextureManager Instance;
                 return Instance;

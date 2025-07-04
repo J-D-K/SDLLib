@@ -93,7 +93,7 @@ sdl::Texture::~Texture()
     }
 }
 
-SDL_Texture *sdl::Texture::get(void)
+SDL_Texture *sdl::Texture::get()
 {
     return m_texture;
 }
@@ -203,7 +203,7 @@ bool sdl::Texture::set_color_mod(sdl::Color color)
     return true;
 }
 
-void sdl::Texture::enable_blending(void)
+void sdl::Texture::enable_blending()
 {
     int sdlError = SDL_SetTextureBlendMode(m_texture, SDL_BLENDMODE_BLEND);
     if (sdl::error_occurred(sdlError))

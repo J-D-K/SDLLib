@@ -60,7 +60,7 @@ bool sdl::initialize(const char *windowTitle, int windowWidth, int windowHeight)
     return true;
 }
 
-void sdl::exit(void)
+void sdl::exit()
 {
     if (s_renderer)
     {
@@ -75,12 +75,12 @@ void sdl::exit(void)
     SDL_Quit();
 }
 
-const char *sdl::get_error_string(void)
+const char *sdl::get_error_string()
 {
     return g_sdlErrorString.c_str();
 }
 
-SDL_Renderer *sdl::get_renderer(void)
+SDL_Renderer *sdl::get_renderer()
 {
     return s_renderer;
 }
@@ -102,7 +102,7 @@ bool sdl::frame_begin(sdl::Color color)
     return true;
 }
 
-void sdl::frame_end(void)
+void sdl::frame_end()
 {
     SDL_RenderPresent(s_renderer);
 }

@@ -166,7 +166,7 @@ static inline bool process_special_characters(uint32_t codepoint, sdl::Color ori
     return true;
 }
 
-bool sdl::text::initialize(void)
+bool sdl::text::initialize()
 {
     Result plError = plInitialize(PlServiceType_User);
     if (R_FAILED(plError))
@@ -223,7 +223,7 @@ bool sdl::text::initialize(void)
     return true;
 }
 
-void sdl::text::exit(void)
+void sdl::text::exit()
 {
     for (int32_t i = 0; i < s_totalFonts; i++)
     {

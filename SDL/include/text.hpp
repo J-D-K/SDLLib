@@ -12,10 +12,10 @@ namespace sdl
 
         /// @brief Initializes FreeType and the Switch's shared system font.
         /// @return True on success. False on failure.
-        bool initialize(void);
+        bool initialize();
 
         /// @brief Exits FreeType.
-        void exit(void);
+        void exit();
 
         /// @brief Renders text.
         /// @param target Render target.
@@ -26,7 +26,14 @@ namespace sdl
         /// @param color The main color to use to render text. Note: Any characters set with addColorCharacter will change this when found.
         /// @param format Format of the string to render.
         /// @param Arguments Va style (printf) style arguments.
-        void render(SDL_Texture *target, int x, int y, int fontSize, int wrapWidth, sdl::Color color, const char *format, ...);
+        void render(SDL_Texture *target,
+                    int x,
+                    int y,
+                    int fontSize,
+                    int wrapWidth,
+                    sdl::Color color,
+                    const char *format,
+                    ...);
 
         /// @brief Gets the width of the text in pixels.
         /// @param fontSize Size of the font in pixels.

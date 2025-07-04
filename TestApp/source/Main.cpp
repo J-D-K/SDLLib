@@ -4,7 +4,7 @@
 static constexpr sdl::Color BLACK = {0x000000FF};
 static constexpr sdl::Color WHITE = {0xFFFFFFFF};
 
-int main(void)
+int main()
 {
     if (!sdl::initialize("sdl test app", 1280, 720))
     {
