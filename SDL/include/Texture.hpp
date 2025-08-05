@@ -1,21 +1,33 @@
 #pragma once
 #include "Color.hpp"
+#include "Surface.hpp"
+
 #include <SDL2/SDL.h>
 
 namespace sdl
 {
-    /// @brief Wrapper class for SDL_Textures. This shouldn't be used directly. See textureManager.hpp instead.
+    /// @brief Forward declaration so this works right.
+    class Texture;
+
+    /// @brief This is what should be used along with the TextureManager.
+    using SharedTexture = std::shared_ptr<sdl::Texture>;
+
+    /// @brief Wrapper class for SDL_Textures. This shouldn't be used directly. See TextureManager.hpp instead.
     class Texture
     {
         public:
+            /// @brief Default constructor. This should never be used. It's only for the Null texture.
+            Texture() = default;
+
             /// @brief Constructor that loads from file.
             /// @param imagePath Path to the image to load.
             Texture(const char *imagePath);
 
             /// @brief Constructor that creates a texture from a surface.
             /// @param surface Surface to create a texture from.
-            /// @param freeSurface Optional. Whether or not the surface should be freed after the texture is created. True by default.
-            Texture(SDL_Surface *surface, bool freeSurface = true);
+            /// @param freeSurface Optional. Whether or not the surface should be freed after the texture is created. True by
+            /// default.
+            Texture(sdl::Surface &surface);
 
             /// @brief Constructor that loads from a memory buffer.
             /// @param data Pointer to memory to load from.
@@ -28,11 +40,16 @@ namespace sdl
             /// @param accessFlags SDL_ACCESSFLAGS_X.
             Texture(int width, int height, int accessFlags);
 
+            Texture(Texture &&texture);
+            Texture &operator=(Texture &&texture);
+
+            Texture(const Texture &)            = delete;
+            Texture &operator=(const Texture &) = delete;
+
             /// @brief Destroys the texture upon destruction.
             ~Texture();
 
-            /// @brief Returns the pointer to the underlying SDL_Texture.
-            /// @return Pointer the the underlying SDL_Texture.
+            /// @brief Returns the underlying SDL_Texture;
             SDL_Texture *get();
 
             /// @brief Renders the texture as-is to x and y.
@@ -40,7 +57,7 @@ namespace sdl
             /// @param x X coordinate.
             /// @param y Y coordinate.
             /// @return True on success. False on failure.
-            bool render(SDL_Texture *target, int x, int y);
+            bool render(sdl::SharedTexture &target, int x, int y);
 
             /// @brief Renders texture stretched.
             /// @param target Render target.
@@ -49,7 +66,7 @@ namespace sdl
             /// @param width Width to render at.
             /// @param height Height to render at.
             /// @return True on success. False on failure.
-            bool render_stretched(SDL_Texture *target, int x, int y, int width, int height);
+            bool render_stretched(sdl::SharedTexture &target, int x, int y, int width, int height);
 
             /// @brief Renders part of the texture.
             /// @param target Render target.
@@ -60,7 +77,7 @@ namespace sdl
             /// @param sourceWidth Width of area rendered.
             /// @param sourceHeight Height of area rendered.
             /// @return True on success. False on failure.
-            bool render_part(SDL_Texture *target,
+            bool render_part(sdl::SharedTexture &target,
                              int x,
                              int y,
                              int sourceX,
@@ -79,7 +96,7 @@ namespace sdl
             /// @param destinationWidth Width to render at.
             /// @param destinationHeight Height to render at.
             /// @return True on success. False on failure.
-            bool render_part_stretched(SDL_Texture *target,
+            bool render_part_stretched(sdl::SharedTexture &target,
                                        int sourceX,
                                        int sourceY,
                                        int sourceWidth,
@@ -94,26 +111,24 @@ namespace sdl
             /// @return True on success. False on failure.
             bool clear(sdl::Color color);
 
-            /// @brief Resizes a texture. Only really useful for render targets.
-            /// @param width New width of texture.
-            /// @param height New height of texture.
-            /// @return True on success. False on failure.
-            bool resize(int width, int height);
-
             /// @brief Sets a color mod for rendering texture with.
             /// @param color Color to use.
             /// @return True on success. False on failure.
             bool set_color_mod(sdl::Color color);
 
+            /// @brief Null texture to pass for Framebuffer access.
+            static inline sdl::SharedTexture Null = std::make_shared<sdl::Texture>();
+
         private:
             /// @brief Underlying SDL_Texture.
-            SDL_Texture *m_texture = nullptr;
+            SDL_Texture *m_texture{};
 
             /// @brief Width and height of texture. Stored here so I don't need to call QueryTexture.
-            int m_width = 0, m_height = 0;
+            int m_width{};
+            int m_height{};
 
             /// @brief Flags texture was created with, if it was created.
-            int m_accessFlags = 0;
+            int m_accessFlags{};
 
             /// @brief Ensures that alpha blending is set for the texture.
             void enable_blending();

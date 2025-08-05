@@ -1,8 +1,11 @@
 #pragma once
 #include "Color.hpp"
 #include "TextureManager.hpp"
+#include "error.hpp"
 #include "text.hpp"
+
 #include <SDL2/SDL.h>
+#include <optional>
 
 namespace sdl
 {
@@ -15,10 +18,6 @@ namespace sdl
 
     /// @brief Quits SDL
     void exit();
-
-    /// @brief Returns the error string.
-    /// @return Error string.
-    const char *get_error_string();
 
     /// @brief Returns pointer to SDL_Renderer if needed.
     /// @return Pointer to SDL_Renderer.
@@ -35,7 +34,7 @@ namespace sdl
     /// @brief Sets the current render target texture.
     /// @param target Target texture.
     /// @return True on success. False on failure.
-    bool set_render_target(SDL_Texture *target);
+    bool set_render_target(sdl::SharedTexture &target);
 
     /// @brief Sets the color the renderer will use to render or draw with.
     /// @param color Color to draw with.
@@ -50,7 +49,7 @@ namespace sdl
     /// @param yB Second Y coordinate.
     /// @param color Color to render line with.
     /// @return True on success. False on failure.
-    bool render_line(SDL_Texture *target, int xA, int yA, int xB, int yB, sdl::Color color);
+    bool render_line(sdl::SharedTexture &target, int xA, int yA, int xB, int yB, sdl::Color color);
 
     /// @brief Renders a filled rectangle.
     /// @param target Target to render to.
@@ -60,13 +59,10 @@ namespace sdl
     /// @param height Height.
     /// @param color Render color.
     /// @return True on success. False on failure.
-    bool render_rect_fill(SDL_Texture *target, int x, int y, int width, int height, sdl::Color color);
+    bool render_rect_fill(sdl::SharedTexture &target, int x, int y, int width, int height, sdl::Color color);
 
     /// @brief Inline function I wrote so I wouldn't have to type so much.
     /// @param sdlError Return value from SDL function.
     /// @return If it's an error.
-    inline bool error_occurred(int SDLError)
-    {
-        return SDLError != 0;
-    }
+    inline bool error_occurred(int SDLError) { return SDLError != 0; }
 } // namespace sdl

@@ -148,3 +148,9 @@ ipch/
 
 # Visual Studio Trace Files
 *.e2e
+
+# This stuff so it blends in with the rest and this totally isn't a pre-made file.
+*.lst
+*.nro
+*.nacp
+lib

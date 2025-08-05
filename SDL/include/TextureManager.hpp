@@ -1,14 +1,12 @@
 #pragma once
 #include "Texture.hpp"
+
 #include <memory>
 #include <string>
 #include <unordered_map>
 
 namespace sdl
 {
-    /// @brief Definition of type so I don't hurt my poor hands typing too much.
-    using SharedTexture = std::shared_ptr<sdl::Texture>;
-
     /// @brief Static class that keeps track of textures so I don't need to worry about memory leaks.
     class TextureManager
     {
@@ -26,29 +24,29 @@ namespace sdl
             /// @param textureName Name of the texture. This is needed to map it and keep track of it.
             /// @param arguments Arguments of the constructor used. See texture.hpp for that.
             /// @return sdl::SharedTexture.
-            template <typename... args>
-            static sdl::SharedTexture create_load_texture(std::string_view textureName, args... arguments)
+            template <typename... Args>
+            static sdl::SharedTexture create_load_texture(std::string_view textureName, Args &&...args)
             {
                 // This is the pointer we're returning.
                 sdl::SharedTexture returnTexture = nullptr;
 
                 // Need the instance to do anything, really.
                 TextureManager &manager = TextureManager::get_instance();
+                auto &textureMap        = manager.m_textureMap;
 
-                // Search the map first to see if the texture is already loaded and that the pointer hasn't expired.
-                if (manager.sm_textureMap.find(textureName.data()) != manager.sm_textureMap.end() &&
-                    !manager.sm_textureMap.at(textureName.data()).expired())
-                {
-                    // Get a lock on it so it can't expired.
-                    returnTexture = manager.sm_textureMap.at(textureName.data()).lock();
-                }
+                // Might cause pauses on loading but w/e
+                manager.purge_expired();
+
+                auto findTexture   = textureMap.find(textureName.data());
+                const bool exists  = findTexture != textureMap.end();
+                const bool expired = exists && findTexture->second.expired();
+                if (exists && !expired) { returnTexture = findTexture->second.lock(); }
                 else
                 {
-                    // Load it since it doesn't exist or expired and map it.
-                    returnTexture = std::make_shared<sdl::Texture>(arguments...);
-                    // Add it to map.
-                    manager.sm_textureMap[textureName.data()] = returnTexture;
+                    returnTexture                  = std::make_shared<sdl::Texture>(args...);
+                    textureMap[textureName.data()] = returnTexture;
                 }
+
                 return returnTexture;
             }
 
@@ -64,7 +62,15 @@ namespace sdl
                 return Instance;
             }
 
+            void purge_expired()
+            {
+                for (auto &[name, pointer] : m_textureMap)
+                {
+                    if (pointer.expired()) { m_textureMap.erase(name); }
+                }
+            }
+
             /// @brief Map of weak_ptrs to textures so they are freed automatically once they're not needed anymore.
-            static inline std::unordered_map<std::string, std::weak_ptr<sdl::Texture>> sm_textureMap;
+            std::unordered_map<std::string, std::weak_ptr<sdl::Texture>> m_textureMap;
     };
 } // namespace sdl
