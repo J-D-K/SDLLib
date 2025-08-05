@@ -15,10 +15,9 @@ sdl::Texture::Texture(const char *imagePath)
 }
 
 sdl::Texture::Texture(sdl::Surface &surface)
+    : m_width(surface->w)
+    , m_height(surface->h)
 {
-    m_width  = surface->w;
-    m_height = surface->h;
-
     m_texture = SDL_CreateTextureFromSurface(sdl::get_renderer(), surface.get());
     if (sdl::error::is_null(m_texture)) { return; }
     Texture::enable_blending();
@@ -34,10 +33,9 @@ sdl::Texture::Texture(const void *data, size_t dataSize)
 }
 
 sdl::Texture::Texture(int width, int height, int accessFlags)
+    : m_width(width)
+    , m_height(height)
 {
-    m_width  = width;
-    m_height = height;
-
     m_texture = SDL_CreateTexture(sdl::get_renderer(), SDL_PIXELFORMAT_RGBA8888, accessFlags, width, height);
     if (sdl::error::is_null(m_texture)) { return; }
     Texture::enable_blending();
