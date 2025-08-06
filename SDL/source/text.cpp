@@ -174,6 +174,7 @@ void sdl::text::render(sdl::SharedTexture &target,
     if (!sdl::set_render_target(target)) { return; }
 
     // Need to preserve original coordinates and color.
+    const int maxWidth      = x + wrapWidth;
     int workingX            = x;
     int workingY            = y;
     sdl::Color workingColor = color;
@@ -191,7 +192,7 @@ void sdl::text::render(sdl::SharedTexture &target,
         if (wrapWidth != sdl::text::NO_WRAP)
         {
             const int blockWidth = sdl::text::get_width(fontSize, block);
-            if (workingX + blockWidth >= wrapWidth)
+            if (workingX + blockWidth >= maxWidth)
             {
                 workingX = x;
                 workingY += fontSize + (fontSize / 3);
