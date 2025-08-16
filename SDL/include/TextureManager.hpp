@@ -11,21 +11,17 @@ namespace sdl
     class TextureManager
     {
         public:
-            /// @brief Prevents copying the manage.
-            TextureManager(const TextureManager &) = delete;
-            /// @brief Prevents copying the manage.
-            TextureManager(TextureManager &&) = delete;
-            /// @brief Prevents copying the manage.
+            TextureManager(const TextureManager &)            = delete;
+            TextureManager(TextureManager &&)                 = delete;
             TextureManager &operator=(const TextureManager &) = delete;
-            /// @brief Prevents copying the manage.
-            TextureManager &operator=(TextureManager &&) = delete;
+            TextureManager &operator=(TextureManager &&)      = delete;
 
             /// @brief Searches for and either returns or creates a new sdl::Sharedtexture.
             /// @param textureName Name of the texture. This is needed to map it and keep track of it.
             /// @param arguments Arguments of the constructor used. See texture.hpp for that.
             /// @return sdl::SharedTexture.
             template <typename... Args>
-            static sdl::SharedTexture create_load_texture(std::string_view textureName, Args &&...args)
+            static sdl::SharedTexture load(std::string_view textureName, Args &&...args)
             {
                 // This is the pointer we're returning.
                 sdl::SharedTexture returnTexture = nullptr;
@@ -34,7 +30,6 @@ namespace sdl
                 TextureManager &manager = TextureManager::get_instance();
                 auto &textureMap        = manager.m_textureMap;
 
-                // Might cause pauses on loading but w/e
                 manager.purge_expired();
 
                 auto findTexture   = textureMap.find(textureName.data());
@@ -46,7 +41,6 @@ namespace sdl
                     returnTexture                  = std::make_shared<sdl::Texture>(args...);
                     textureMap[textureName.data()] = returnTexture;
                 }
-
                 return returnTexture;
             }
 

@@ -117,7 +117,7 @@ static GlyphData *load_glyph(uint32_t codepoint, int fontSize)
     const int16_t top           = glyphSlot->bitmap_top;
     const int16_t left          = glyphSlot->bitmap_left;
     const std::string cacheName = std::to_string(codepoint) + "_" + std::to_string(fontSize);
-    sdl::SharedTexture texture  = sdl::TextureManager::create_load_texture(cacheName, surface);
+    sdl::SharedTexture texture  = sdl::TextureManager::load(cacheName, surface);
     s_fontCacheMap[cachePair]   = {width, height, advanceX, top, left, texture};
 
     return &s_fontCacheMap[cachePair];
