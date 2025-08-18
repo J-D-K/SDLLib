@@ -30,8 +30,6 @@ namespace sdl
                 TextureManager &manager = TextureManager::get_instance();
                 auto &textureMap        = manager.m_textureMap;
 
-                manager.purge_expired();
-
                 auto findTexture   = textureMap.find(textureName.data());
                 const bool exists  = findTexture != textureMap.end();
                 const bool expired = exists && findTexture->second.expired();
