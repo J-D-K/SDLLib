@@ -21,7 +21,7 @@ namespace sdl
             /// @param arguments Arguments of the constructor used. See texture.hpp for that.
             /// @return sdl::SharedTexture.
             template <typename... Args>
-            static sdl::SharedTexture load(std::string_view textureName Args &&...args)
+            static sdl::SharedTexture load(std::string_view textureName, Args &&...args)
             {
                 // This is the pointer we're returning.
                 sdl::SharedTexture returnTexture{};
