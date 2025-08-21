@@ -21,7 +21,7 @@ namespace sdl
             /// @param arguments Arguments of the constructor used. See texture.hpp for that.
             /// @return sdl::SharedTexture.
             template <typename... Args>
-            static sdl::SharedTexture load(const std::string &textureName, Args &&...args)
+            static sdl::SharedTexture load(std::string_view textureName Args &&...args)
             {
                 // This is the pointer we're returning.
                 sdl::SharedTexture returnTexture{};
@@ -29,22 +29,23 @@ namespace sdl
                 // Need the instance to do anything, really.
                 TextureManager &manager = TextureManager::get_instance();
                 auto &m_textureMap      = manager.m_textureMap;
+                const std::string name{textureName}; // To do: Figure out how to string_view <-> string better for maps.
 
-                auto findTexture   = m_textureMap.find(textureName);
+                auto findTexture   = m_textureMap.find(name);
                 const bool exists  = findTexture != m_textureMap.end();
                 const bool expired = exists && findTexture->second.expired();
                 if (exists && !expired) { returnTexture = findTexture->second.lock(); }
                 else
                 {
-                    returnTexture             = std::make_shared<sdl::Texture>(args...);
-                    m_textureMap[textureName] = returnTexture;
+                    returnTexture      = std::make_shared<sdl::Texture>(args...);
+                    m_textureMap[name] = returnTexture;
                 }
 
                 return returnTexture;
             }
 
             template <typename... Args>
-            static sdl::SharedTexture replace(const std::string &textureName, Args &&...args)
+            static sdl::SharedTexture replace(std::string_view textureName, Args &&...args)
             {
                 sdl::SharedTexture returnTexture{};
 
