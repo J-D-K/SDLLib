@@ -21,24 +21,47 @@ namespace sdl
             /// @param arguments Arguments of the constructor used. See texture.hpp for that.
             /// @return sdl::SharedTexture.
             template <typename... Args>
-            static sdl::SharedTexture load(std::string_view textureName, Args &&...args)
+            static sdl::SharedTexture load(const std::string &textureName, Args &&...args)
             {
                 // This is the pointer we're returning.
-                sdl::SharedTexture returnTexture = nullptr;
+                sdl::SharedTexture returnTexture{};
 
                 // Need the instance to do anything, really.
                 TextureManager &manager = TextureManager::get_instance();
-                auto &textureMap        = manager.m_textureMap;
+                auto &m_textureMap      = manager.m_textureMap;
 
-                auto findTexture   = textureMap.find(textureName.data());
-                const bool exists  = findTexture != textureMap.end();
+                auto findTexture   = m_textureMap.find(textureName);
+                const bool exists  = findTexture != m_textureMap.end();
                 const bool expired = exists && findTexture->second.expired();
                 if (exists && !expired) { returnTexture = findTexture->second.lock(); }
                 else
                 {
-                    returnTexture                  = std::make_shared<sdl::Texture>(args...);
-                    textureMap[textureName.data()] = returnTexture;
+                    returnTexture             = std::make_shared<sdl::Texture>(args...);
+                    m_textureMap[textureName] = returnTexture;
                 }
+
+                return returnTexture;
+            }
+
+            template <typename... Args>
+            static sdl::SharedTexture replace(const std::string &textureName, Args &&...args)
+            {
+                sdl::SharedTexture returnTexture{};
+
+                TextureManager &manager = TextureManager::get_instance();
+                auto &m_textureMap      = manager.m_textureMap;
+                const std::string name{textureName};
+
+                auto findTexture   = m_textureMap.find(textureName);
+                const bool exists  = findTexture != m_textureMap.end();
+                const bool expired = exists && findTexture->second.expired();
+                if (exists && !expired)
+                {
+                    returnTexture             = findTexture->second.lock();
+                    returnTexture             = std::make_shared<sdl::Texture>(args...);
+                    m_textureMap[textureName] = returnTexture;
+                }
+
                 return returnTexture;
             }
 
