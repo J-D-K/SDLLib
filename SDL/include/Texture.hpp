@@ -111,6 +111,12 @@ namespace sdl
             /// @return True on success. False on failure.
             bool clear(sdl::Color color);
 
+            /// @brief Returns the width of the texture.
+            int get_width() const;
+
+            /// @brief Returns the height of the texture.
+            int get_height() const;
+
             /// @brief Sets a color mod for rendering texture with.
             /// @param color Color to use.
             /// @return True on success. False on failure.

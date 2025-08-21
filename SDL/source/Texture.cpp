@@ -125,6 +125,10 @@ bool sdl::Texture::clear(sdl::Color color)
     return true;
 }
 
+int sdl::Texture::get_width() const { return m_width; }
+
+int sdl::Texture::get_height() const { return m_height; }
+
 bool sdl::Texture::set_color_mod(sdl::Color color)
 {
     const uint8_t red   = sdl::color::get_red(color);
