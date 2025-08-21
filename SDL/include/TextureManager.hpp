@@ -53,14 +53,14 @@ namespace sdl
                 auto &m_textureMap      = manager.m_textureMap;
                 const std::string name{textureName};
 
-                auto findTexture   = m_textureMap.find(textureName);
+                auto findTexture   = m_textureMap.find(name);
                 const bool exists  = findTexture != m_textureMap.end();
                 const bool expired = exists && findTexture->second.expired();
                 if (exists && !expired)
                 {
-                    returnTexture             = findTexture->second.lock();
-                    returnTexture             = std::make_shared<sdl::Texture>(args...);
-                    m_textureMap[textureName] = returnTexture;
+                    returnTexture      = findTexture->second.lock();
+                    returnTexture      = std::make_shared<sdl::Texture>(args...);
+                    m_textureMap[name] = returnTexture;
                 }
 
                 return returnTexture;
