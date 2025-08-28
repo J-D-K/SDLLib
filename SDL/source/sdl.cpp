@@ -90,6 +90,16 @@ bool sdl::render_line(sdl::SharedTexture &target, int xA, int yA, int xB, int yB
     return true;
 }
 
+bool sdl::render_rect(sdl::SharedTexture &target, int x, int y, int width, int height, sdl::Color color)
+{
+    if (!sdl::set_render_target(target) || !sdl::set_render_draw_color(color)) { return false; }
+
+    SDL_Renderer *renderer = s_renderer.get();
+    const SDL_Rect rect    = {.x = x, .y = y, .w = width, .h = height};
+    if (sdl::error::sdl(SDL_RenderDrawRect(renderer, &rect))) { return false; }
+    return true;
+}
+
 bool sdl::render_rect_fill(sdl::SharedTexture &target, int x, int y, int width, int height, sdl::Color color)
 {
     if (!sdl::set_render_target(target) || !sdl::set_render_draw_color(color)) { return false; }

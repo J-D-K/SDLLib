@@ -51,6 +51,16 @@ namespace sdl
     /// @return True on success. False on failure.
     bool render_line(sdl::SharedTexture &target, int xA, int yA, int xB, int yB, sdl::Color color);
 
+    /// @brief Renders a non-filled rectangle at the coordinates passed.
+    /// @param target Target to render to.
+    /// @param x X coord.
+    /// @param y Y coord.
+    /// @param width Width of the rectangle.
+    /// @param height Height of the rectangle.
+    /// @param color Color of the rectangle.
+    /// @return True on success. False on failure.
+    bool render_rect(sdl::SharedTexture &target, int x, int y, int width, int height, sdl::Color color);
+
     /// @brief Renders a filled rectangle.
     /// @param target Target to render to.
     /// @param x X position.
