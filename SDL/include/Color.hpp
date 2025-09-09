@@ -17,17 +17,17 @@ namespace sdl
     /// @brief Everything in here makes these easier to work with.
     namespace color
     {
-        inline uint8_t get_red(sdl::Color color) { return color.rgba[3]; }
-        inline uint8_t get_green(sdl::Color color) { return color.rgba[2]; }
-        inline uint8_t get_blue(sdl::Color color) { return color.rgba[1]; }
-        inline uint8_t get_alpha(sdl::Color color) { return color.rgba[0]; }
+        inline uint8_t get_red(sdl::Color color) noexcept { return color.rgba[3]; }
+        inline uint8_t get_green(sdl::Color color) noexcept { return color.rgba[2]; }
+        inline uint8_t get_blue(sdl::Color color) noexcept { return color.rgba[1]; }
+        inline uint8_t get_alpha(sdl::Color color) noexcept { return color.rgba[0]; }
 
-        inline void set_red(sdl::Color &color, uint8_t red) { color.rgba[3] = red; }
-        inline void set_green(sdl::Color &color, uint8_t green) { color.rgba[2] = green; }
-        inline void set_blue(sdl::Color &color, uint8_t blue) { color.rgba[1] = blue; }
-        inline void set_alpha(sdl::Color &color, uint8_t alpha) { color.rgba[0] = alpha; }
+        inline void set_red(sdl::Color &color, uint8_t red) noexcept { color.rgba[3] = red; }
+        inline void set_green(sdl::Color &color, uint8_t green) noexcept { color.rgba[2] = green; }
+        inline void set_blue(sdl::Color &color, uint8_t blue) noexcept { color.rgba[1] = blue; }
+        inline void set_alpha(sdl::Color &color, uint8_t alpha) noexcept { color.rgba[0] = alpha; }
 
-        inline sdl::Color create_color(uint32_t red, uint32_t green, uint32_t blue, uint32_t alpha)
+        inline sdl::Color create_color(uint32_t red, uint32_t green, uint32_t blue, uint32_t alpha) noexcept
         {
             return {(red << 24 & 0xFF000000) | (green << 16 & 0xFF0000) | (blue << 8 & 0xFF00) | (alpha & 0xFF)};
         }

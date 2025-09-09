@@ -41,9 +41,19 @@ sdl::Texture::Texture(int width, int height, int accessFlags)
     Texture::enable_blending();
 }
 
-sdl::Texture::Texture(Texture &&texture) { *this = std::move(texture); }
+sdl::Texture::Texture(Texture &&texture) noexcept
+    : m_texture(texture.m_texture)
+    , m_width(texture.m_width)
+    , m_height(texture.m_height)
+    , m_accessFlags(texture.m_accessFlags)
+{
+    texture.m_texture     = nullptr;
+    texture.m_width       = 0;
+    texture.m_height      = 0;
+    texture.m_accessFlags = 0;
+}
 
-sdl::Texture &sdl::Texture::operator=(Texture &&texture)
+sdl::Texture &sdl::Texture::operator=(Texture &&texture) noexcept
 {
     m_texture     = texture.m_texture;
     m_width       = texture.m_width;
@@ -63,23 +73,23 @@ sdl::Texture::~Texture()
     if (m_texture) { SDL_DestroyTexture(m_texture); }
 }
 
-SDL_Texture *sdl::Texture::get() { return m_texture; }
+SDL_Texture *sdl::Texture::get() noexcept { return m_texture; }
 
-bool sdl::Texture::render(sdl::SharedTexture &target, int x, int y)
+bool sdl::Texture::render(sdl::SharedTexture &target, int x, int y) noexcept
 {
     if (!sdl::set_render_target(target)) { return false; }
 
-    SDL_Rect source      = {.x = 0, .y = 0, .w = m_width, .h = m_height};
-    SDL_Rect destination = {.x = x, .y = y, .w = m_width, .h = m_height};
+    const SDL_Rect source      = {.x = 0, .y = 0, .w = m_width, .h = m_height};
+    const SDL_Rect destination = {.x = x, .y = y, .w = m_width, .h = m_height};
     return Texture::render_copy(&source, &destination);
 }
 
-bool sdl::Texture::render_stretched(sdl::SharedTexture &target, int x, int y, int width, int height)
+bool sdl::Texture::render_stretched(sdl::SharedTexture &target, int x, int y, int width, int height) noexcept
 {
     if (!sdl::set_render_target(target)) { return false; }
 
-    SDL_Rect source      = {.x = 0, .y = 0, .w = m_width, .h = m_height};
-    SDL_Rect destination = {.x = x, .y = y, .w = width, .h = height};
+    const SDL_Rect source      = {.x = 0, .y = 0, .w = m_width, .h = m_height};
+    const SDL_Rect destination = {.x = x, .y = y, .w = width, .h = height};
     return Texture::render_copy(&source, &destination);
 }
 
@@ -89,12 +99,12 @@ bool sdl::Texture::render_part(sdl::SharedTexture &target,
                                int sourceX,
                                int sourceY,
                                int sourceWidth,
-                               int sourceHeight)
+                               int sourceHeight) noexcept
 {
     if (!sdl::set_render_target(target)) { return false; }
 
-    SDL_Rect source      = {.x = sourceX, .y = sourceY, .w = sourceWidth, .h = sourceHeight};
-    SDL_Rect destination = {.x = x, .y = y, .w = sourceWidth, .h = sourceHeight};
+    const SDL_Rect source      = {.x = sourceX, .y = sourceY, .w = sourceWidth, .h = sourceHeight};
+    const SDL_Rect destination = {.x = x, .y = y, .w = sourceWidth, .h = sourceHeight};
     return Texture::render_copy(&source, &destination);
 }
 
@@ -106,16 +116,16 @@ bool sdl::Texture::render_part_stretched(sdl::SharedTexture &target,
                                          int destinationX,
                                          int destinationY,
                                          int destinationWidth,
-                                         int destinationHeight)
+                                         int destinationHeight) noexcept
 {
     if (!sdl::set_render_target(target)) { return false; }
 
-    SDL_Rect source      = {.x = sourceX, .y = sourceY, .w = sourceWidth, .h = sourceHeight};
-    SDL_Rect destination = {.x = destinationX, .y = destinationY, .w = destinationWidth, .h = destinationHeight};
+    const SDL_Rect source      = {.x = sourceX, .y = sourceY, .w = sourceWidth, .h = sourceHeight};
+    const SDL_Rect destination = {.x = destinationX, .y = destinationY, .w = destinationWidth, .h = destinationHeight};
     return Texture::render_copy(&source, &destination);
 }
 
-bool sdl::Texture::clear(sdl::Color color)
+bool sdl::Texture::clear(sdl::Color color) noexcept
 {
     SDL_Renderer *renderer = sdl::get_renderer();
 
@@ -125,11 +135,11 @@ bool sdl::Texture::clear(sdl::Color color)
     return true;
 }
 
-int sdl::Texture::get_width() const { return m_width; }
+int sdl::Texture::get_width() const noexcept { return m_width; }
 
-int sdl::Texture::get_height() const { return m_height; }
+int sdl::Texture::get_height() const noexcept { return m_height; }
 
-bool sdl::Texture::set_color_mod(sdl::Color color)
+bool sdl::Texture::set_color_mod(sdl::Color color) noexcept
 {
     const uint8_t red   = sdl::color::get_red(color);
     const uint8_t green = sdl::color::get_green(color);
@@ -139,9 +149,9 @@ bool sdl::Texture::set_color_mod(sdl::Color color)
     return true;
 }
 
-void sdl::Texture::enable_blending() { sdl::error::sdl(SDL_SetTextureBlendMode(m_texture, SDL_BLENDMODE_BLEND)); }
+void sdl::Texture::enable_blending() noexcept { sdl::error::sdl(SDL_SetTextureBlendMode(m_texture, SDL_BLENDMODE_BLEND)); }
 
-bool sdl::Texture::render_copy(const SDL_Rect *source, const SDL_Rect *destination)
+bool sdl::Texture::render_copy(const SDL_Rect *source, const SDL_Rect *destination) noexcept
 {
     SDL_Renderer *renderer = sdl::get_renderer();
     if (sdl::error::sdl(SDL_RenderCopy(renderer, m_texture, source, destination))) { return false; }

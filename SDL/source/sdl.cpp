@@ -48,9 +48,9 @@ void sdl::exit()
     SDL_Quit();
 }
 
-SDL_Renderer *sdl::get_renderer() { return s_renderer.get(); }
+SDL_Renderer *sdl::get_renderer() noexcept { return s_renderer.get(); }
 
-bool sdl::frame_begin(sdl::Color color)
+bool sdl::frame_begin(sdl::Color color) noexcept
 {
     // Set render target back to framebuffer.
     if (!sdl::set_render_target(sdl::Texture::Null) || !sdl::set_render_draw_color(color)) { return false; }
@@ -60,9 +60,9 @@ bool sdl::frame_begin(sdl::Color color)
     return true;
 }
 
-void sdl::frame_end() { SDL_RenderPresent(s_renderer.get()); }
+void sdl::frame_end() noexcept { SDL_RenderPresent(s_renderer.get()); }
 
-bool sdl::set_render_target(sdl::SharedTexture &target)
+bool sdl::set_render_target(sdl::SharedTexture &target) noexcept
 {
     SDL_Renderer *renderer     = s_renderer.get();
     SDL_Texture *targetPointer = target->get();
@@ -70,7 +70,7 @@ bool sdl::set_render_target(sdl::SharedTexture &target)
     return true;
 }
 
-bool sdl::set_render_draw_color(sdl::Color color)
+bool sdl::set_render_draw_color(sdl::Color color) noexcept
 {
     SDL_Renderer *renderer = s_renderer.get();
     const uint8_t red      = sdl::color::get_red(color);
@@ -81,7 +81,7 @@ bool sdl::set_render_draw_color(sdl::Color color)
     if (sdl::error::sdl(SDL_SetRenderDrawColor(renderer, red, green, blue, alpha))) { return false; }
     return true;
 }
-bool sdl::render_line(sdl::SharedTexture &target, int xA, int yA, int xB, int yB, sdl::Color color)
+bool sdl::render_line(sdl::SharedTexture &target, int xA, int yA, int xB, int yB, sdl::Color color) noexcept
 {
     if (!sdl::set_render_target(target) || !sdl::set_render_draw_color(color)) { return false; }
 
@@ -90,7 +90,7 @@ bool sdl::render_line(sdl::SharedTexture &target, int xA, int yA, int xB, int yB
     return true;
 }
 
-bool sdl::render_rect(sdl::SharedTexture &target, int x, int y, int width, int height, sdl::Color color)
+bool sdl::render_rect(sdl::SharedTexture &target, int x, int y, int width, int height, sdl::Color color) noexcept
 {
     if (!sdl::set_render_target(target) || !sdl::set_render_draw_color(color)) { return false; }
 
@@ -100,7 +100,7 @@ bool sdl::render_rect(sdl::SharedTexture &target, int x, int y, int width, int h
     return true;
 }
 
-bool sdl::render_rect_fill(sdl::SharedTexture &target, int x, int y, int width, int height, sdl::Color color)
+bool sdl::render_rect_fill(sdl::SharedTexture &target, int x, int y, int width, int height, sdl::Color color) noexcept
 {
     if (!sdl::set_render_target(target) || !sdl::set_render_draw_color(color)) { return false; }
 

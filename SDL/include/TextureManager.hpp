@@ -29,16 +29,15 @@ namespace sdl
                 // Need the instance to do anything, really.
                 TextureManager &manager = TextureManager::get_instance();
                 auto &m_textureMap      = manager.m_textureMap;
-                const std::string name{textureName}; // To do: Figure out how to string_view <-> string better for maps.
 
-                auto findTexture   = m_textureMap.find(name);
+                auto findTexture   = m_textureMap.find(textureName);
                 const bool exists  = findTexture != m_textureMap.end();
                 const bool expired = exists && findTexture->second.expired();
                 if (exists && !expired) { returnTexture = findTexture->second.lock(); }
                 else
                 {
-                    returnTexture      = std::make_shared<sdl::Texture>(args...);
-                    m_textureMap[name] = returnTexture;
+                    returnTexture                    = std::make_shared<sdl::Texture>(args...);
+                    m_textureMap[textureName.data()] = returnTexture;
                 }
 
                 return returnTexture;
@@ -51,16 +50,15 @@ namespace sdl
 
                 TextureManager &manager = TextureManager::get_instance();
                 auto &m_textureMap      = manager.m_textureMap;
-                const std::string name{textureName};
 
-                auto findTexture   = m_textureMap.find(name);
+                auto findTexture   = m_textureMap.find(textureName);
                 const bool exists  = findTexture != m_textureMap.end();
                 const bool expired = exists && findTexture->second.expired();
                 if (exists && !expired)
                 {
-                    returnTexture      = findTexture->second.lock();
-                    returnTexture      = std::make_shared<sdl::Texture>(args...);
-                    m_textureMap[name] = returnTexture;
+                    returnTexture                    = findTexture->second.lock();
+                    returnTexture                    = std::make_shared<sdl::Texture>(args...);
+                    m_textureMap[textureName.data()] = returnTexture;
                 }
 
                 return returnTexture;
@@ -86,7 +84,21 @@ namespace sdl
                 }
             }
 
+            // clang-format off
+            struct StringViewHash
+            {
+                using is_transparent = void;
+                size_t operator()(std::string_view view) const noexcept { return std::hash<std::string_view>{}(view); }
+            };
+
+            struct StringViewEquals
+            {
+                using is_transparent = void;
+                bool operator()(std::string_view viewA, std::string_view viewB) const noexcept { return viewA == viewB; }
+            };
+            // clang-format on
+
             /// @brief Map of weak_ptrs to textures so they are freed automatically once they're not needed anymore.
-            std::unordered_map<std::string, std::weak_ptr<sdl::Texture>> m_textureMap;
+            std::unordered_map<std::string, std::weak_ptr<sdl::Texture>, StringViewHash, StringViewEquals> m_textureMap;
     };
 } // namespace sdl

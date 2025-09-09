@@ -21,25 +21,25 @@ namespace sdl
 
     /// @brief Returns pointer to SDL_Renderer if needed.
     /// @return Pointer to SDL_Renderer.
-    SDL_Renderer *get_renderer();
+    SDL_Renderer *get_renderer() noexcept;
 
     /// @brief Begins a frame and clears it to color.
     /// @param color Color to clear the frame to.
     /// @return True on success. False on failure.
-    bool frame_begin(sdl::Color color);
+    bool frame_begin(sdl::Color color) noexcept;
 
     /// @brief Ends a frame and presents it to screen.
-    void frame_end();
+    void frame_end() noexcept;
 
     /// @brief Sets the current render target texture.
     /// @param target Target texture.
     /// @return True on success. False on failure.
-    bool set_render_target(sdl::SharedTexture &target);
+    bool set_render_target(sdl::SharedTexture &target) noexcept;
 
     /// @brief Sets the color the renderer will use to render or draw with.
     /// @param color Color to draw with.
     /// @return True on success. False on failure.
-    bool set_render_draw_color(sdl::Color color);
+    bool set_render_draw_color(sdl::Color color) noexcept;
 
     /// @brief Renders a line to target.
     /// @param target Render target.
@@ -49,7 +49,7 @@ namespace sdl
     /// @param yB Second Y coordinate.
     /// @param color Color to render line with.
     /// @return True on success. False on failure.
-    bool render_line(sdl::SharedTexture &target, int xA, int yA, int xB, int yB, sdl::Color color);
+    bool render_line(sdl::SharedTexture &target, int xA, int yA, int xB, int yB, sdl::Color color) noexcept;
 
     /// @brief Renders a non-filled rectangle at the coordinates passed.
     /// @param target Target to render to.
@@ -59,7 +59,7 @@ namespace sdl
     /// @param height Height of the rectangle.
     /// @param color Color of the rectangle.
     /// @return True on success. False on failure.
-    bool render_rect(sdl::SharedTexture &target, int x, int y, int width, int height, sdl::Color color);
+    bool render_rect(sdl::SharedTexture &target, int x, int y, int width, int height, sdl::Color color) noexcept;
 
     /// @brief Renders a filled rectangle.
     /// @param target Target to render to.
@@ -69,10 +69,10 @@ namespace sdl
     /// @param height Height.
     /// @param color Render color.
     /// @return True on success. False on failure.
-    bool render_rect_fill(sdl::SharedTexture &target, int x, int y, int width, int height, sdl::Color color);
+    bool render_rect_fill(sdl::SharedTexture &target, int x, int y, int width, int height, sdl::Color color) noexcept;
 
     /// @brief Inline function I wrote so I wouldn't have to type so much.
     /// @param sdlError Return value from SDL function.
     /// @return If it's an error.
-    inline bool error_occurred(int SDLError) { return SDLError != 0; }
+    inline bool error_occurred(int SDLError) noexcept { return SDLError != 0; }
 } // namespace sdl

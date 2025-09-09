@@ -40,8 +40,8 @@ namespace sdl
             /// @param accessFlags SDL_ACCESSFLAGS_X.
             Texture(int width, int height, int accessFlags);
 
-            Texture(Texture &&texture);
-            Texture &operator=(Texture &&texture);
+            Texture(Texture &&texture) noexcept;
+            Texture &operator=(Texture &&texture) noexcept;
 
             Texture(const Texture &)            = delete;
             Texture &operator=(const Texture &) = delete;
@@ -50,14 +50,14 @@ namespace sdl
             ~Texture();
 
             /// @brief Returns the underlying SDL_Texture;
-            SDL_Texture *get();
+            SDL_Texture *get() noexcept;
 
             /// @brief Renders the texture as-is to x and y.
             /// @param target Render target.
             /// @param x X coordinate.
             /// @param y Y coordinate.
             /// @return True on success. False on failure.
-            bool render(sdl::SharedTexture &target, int x, int y);
+            bool render(sdl::SharedTexture &target, int x, int y) noexcept;
 
             /// @brief Renders texture stretched.
             /// @param target Render target.
@@ -66,7 +66,7 @@ namespace sdl
             /// @param width Width to render at.
             /// @param height Height to render at.
             /// @return True on success. False on failure.
-            bool render_stretched(sdl::SharedTexture &target, int x, int y, int width, int height);
+            bool render_stretched(sdl::SharedTexture &target, int x, int y, int width, int height) noexcept;
 
             /// @brief Renders part of the texture.
             /// @param target Render target.
@@ -83,7 +83,7 @@ namespace sdl
                              int sourceX,
                              int sourceY,
                              int sourceWidth,
-                             int sourceHeight);
+                             int sourceHeight) noexcept;
 
             /// @brief Renders part of the texture stretched.
             /// @param target Render target.
@@ -104,23 +104,23 @@ namespace sdl
                                        int destinationX,
                                        int destinationY,
                                        int destinationWidth,
-                                       int destinationHeight);
+                                       int destinationHeight) noexcept;
 
             /// @brief Clears texture to a color.
             /// @param color Color to clear texture to.
             /// @return True on success. False on failure.
-            bool clear(sdl::Color color);
+            bool clear(sdl::Color color) noexcept;
 
             /// @brief Returns the width of the texture.
-            int get_width() const;
+            int get_width() const noexcept;
 
             /// @brief Returns the height of the texture.
-            int get_height() const;
+            int get_height() const noexcept;
 
             /// @brief Sets a color mod for rendering texture with.
             /// @param color Color to use.
             /// @return True on success. False on failure.
-            bool set_color_mod(sdl::Color color);
+            bool set_color_mod(sdl::Color color) noexcept;
 
             /// @brief Null texture to pass for Framebuffer access.
             static inline sdl::SharedTexture Null = std::make_shared<sdl::Texture>();
@@ -137,12 +137,12 @@ namespace sdl
             int m_accessFlags{};
 
             /// @brief Ensures that alpha blending is set for the texture.
-            void enable_blending();
+            void enable_blending() noexcept;
 
             /// @brief Shortcut call to RenderCopy that logs errors.
             /// @param source Source Rect (coordinates)
             /// @param destination Destination Rect (coordinates)
             /// @return True on success. False on failure.
-            bool render_copy(const SDL_Rect *source, const SDL_Rect *destination);
+            bool render_copy(const SDL_Rect *source, const SDL_Rect *destination) noexcept;
     };
 } // namespace sdl
