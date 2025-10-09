@@ -23,7 +23,7 @@ bool sdl::initialize(const char *windowTitle, int windowWidth, int windowHeight)
 {
     static constexpr uint32_t SDL_INIT_FLAGS   = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER;
     static constexpr SDL_AudioSpec AUDIO_SPECS = {.freq     = 11025,
-                                                  .format   = AUDIO_S16,
+                                                  .format   = AUDIO_U8,
                                                   .channels = 2,
                                                   .silence  = 0,
                                                   .samples  = 256};
