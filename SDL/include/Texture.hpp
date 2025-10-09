@@ -13,7 +13,7 @@ namespace sdl
     using SharedTexture = std::shared_ptr<sdl::Texture>;
 
     /// @brief Wrapper class for SDL_Textures. This shouldn't be used directly. See TextureManager.hpp instead.
-    class Texture
+    class Texture final
     {
         public:
             /// @brief Default constructor. This should never be used. It's only for the Null texture.
@@ -40,9 +40,11 @@ namespace sdl
             /// @param accessFlags SDL_ACCESSFLAGS_X.
             Texture(int width, int height, int accessFlags);
 
+            // Allow moving.
             Texture(Texture &&texture) noexcept;
             Texture &operator=(Texture &&texture) noexcept;
 
+            // No copying.
             Texture(const Texture &)            = delete;
             Texture &operator=(const Texture &) = delete;
 

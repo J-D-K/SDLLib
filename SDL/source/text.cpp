@@ -1,6 +1,6 @@
 #include "text.hpp"
 
-#include "TextureManager.hpp"
+#include "ResourceManager.hpp"
 #include "error.hpp"
 #include "sdl.hpp"
 

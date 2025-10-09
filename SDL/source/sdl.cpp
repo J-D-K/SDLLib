@@ -13,6 +13,7 @@ namespace
 
     Renderer s_renderer = Renderer(nullptr, SDL_DestroyRenderer);
     Window s_window     = Window(nullptr, SDL_DestroyWindow);
+    SDL_AudioDeviceID s_audioDevice{}; // You can't really wrap this in a unique_ptr.
 
     // SDL_image flags.
     constexpr int SDL_IMAGE_FLAGS = IMG_INIT_JPG | IMG_INIT_PNG;
@@ -20,7 +21,14 @@ namespace
 
 bool sdl::initialize(const char *windowTitle, int windowWidth, int windowHeight)
 {
-    if (sdl::error::sdl(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER))) { return false; }
+    static constexpr uint32_t SDL_INIT_FLAGS   = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER;
+    static constexpr SDL_AudioSpec AUDIO_SPECS = {.freq     = 11025,
+                                                  .format   = AUDIO_S16,
+                                                  .channels = 2,
+                                                  .silence  = 0,
+                                                  .samples  = 256};
+
+    if (sdl::error::sdl(SDL_Init(SDL_INIT_FLAGS))) { return false; }
 
     SDL_Window *tempWindow = SDL_CreateWindow(windowTitle, 0, 0, windowWidth, windowHeight, SDL_WINDOW_SHOWN);
     if (sdl::error::is_null(tempWindow)) { return false; }
@@ -29,6 +37,9 @@ bool sdl::initialize(const char *windowTitle, int windowWidth, int windowHeight)
     SDL_Renderer *tempRenderer = SDL_CreateRenderer(s_window.get(), -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (sdl::error::is_null(tempRenderer)) { return false; }
     s_renderer.reset(tempRenderer);
+
+    s_audioDevice = SDL_OpenAudioDevice(nullptr, 0, &AUDIO_SPECS, nullptr, 0);
+    if (s_audioDevice == 0) { return false; }
 
     int imgError = IMG_Init(SDL_IMAGE_FLAGS);
     if (imgError != SDL_IMAGE_FLAGS) { return false; }
@@ -44,11 +55,14 @@ bool sdl::initialize(const char *windowTitle, int windowWidth, int windowHeight)
 
 void sdl::exit()
 {
+    SDL_CloseAudioDevice(s_audioDevice);
     IMG_Quit();
     SDL_Quit();
 }
 
 SDL_Renderer *sdl::get_renderer() noexcept { return s_renderer.get(); }
+
+SDL_AudioDeviceID sdl::get_audio_device() noexcept { return s_audioDevice; }
 
 bool sdl::frame_begin(sdl::Color color) noexcept
 {

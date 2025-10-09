@@ -1,6 +1,7 @@
 #pragma once
 #include "Color.hpp"
-#include "TextureManager.hpp"
+#include "ResourceManager.hpp"
+#include "Sound.hpp"
 #include "error.hpp"
 #include "text.hpp"
 
@@ -22,6 +23,9 @@ namespace sdl
     /// @brief Returns pointer to SDL_Renderer if needed.
     /// @return Pointer to SDL_Renderer.
     SDL_Renderer *get_renderer() noexcept;
+
+    /// @brief Returns the audio device id.
+    SDL_AudioDeviceID get_audio_device() noexcept;
 
     /// @brief Begins a frame and clears it to color.
     /// @param color Color to clear the frame to.
