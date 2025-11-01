@@ -1,5 +1,6 @@
 #pragma once
 #include "Color.hpp"
+#include "SystemFont.hpp"
 #include "Texture.hpp"
 
 #include <SDL2/SDL.h>
@@ -16,9 +17,6 @@ namespace sdl
         /// @brief Initializes FreeType and the Switch's shared system font.
         /// @return True on success. False on failure.
         bool initialize();
-
-        /// @brief Exits FreeType.
-        void exit();
 
         /// @brief Renders text.
         /// @param target Render target.

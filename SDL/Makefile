@@ -27,7 +27,8 @@ ARCH	:=	-march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIC -ftls-model=
 # The include flag here is a quick fix because for some reason, devkitpro doesn't have freetype-config now
 # and trying to use pkg-config conflicts with my system pkg-config
 CFLAGS	:=	-g -Wall -Werror -ffunction-sections -fdata-sections \
-			`sdl2-config --cflags` -I$(PORTLIBS)/include/freetype2 $(ARCH) $(BUILD_CFLAGS)
+			-I$(PORTLIBS)/include/freetype2 `sdl2-config --cflags` \
+			$(ARCH) $(BUILD_CFLAGS)
 
 CFLAGS	+=	$(INCLUDE)
 

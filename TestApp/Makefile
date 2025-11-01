@@ -51,7 +51,7 @@ ARCH	:=	-march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE
 
 # This is a temporary fix because devkitpro is missing freetype-config all of a sudden?
 CFLAGS	:=	-g -Wall -O2 -ffunction-sections \
-			`sdl2-config --cflags` \
+			-I$(PORTLIBS)/include/freetype2 `sdl2-config --cflags` \
 			$(ARCH) $(DEFINES)
 
 CFLAGS	+=	$(INCLUDE) -D__SWITCH__
