@@ -20,6 +20,12 @@ namespace sdl::text
     class SystemFont final
     {
         public:
+            // Singleton. None of this allowed.
+            SystemFont(const SystemFont &)            = delete;
+            SystemFont(SystemFont &&)                 = delete;
+            SystemFont &operator=(const SystemFont &) = delete;
+            SystemFont &operator=(SystemFont &&)      = delete;
+
             /// @brief Initializes Freetype and the system font.
             static bool initialize();
 
@@ -27,7 +33,7 @@ namespace sdl::text
             static void exit();
 
             /// @brief Resizes the font in freetype.
-            static void resize(int fontSize) noexcept;
+            static void resize(int size) noexcept;
 
             /// @brief Attempts to find or load the codepoint passed.
             /// @param codepoint Codepoint.
@@ -35,22 +41,28 @@ namespace sdl::text
 
         private:
             /// @brief Freetype library.
-            static inline FT_Library sm_ftLib{};
+            static inline FT_Library m_ftLib{};
 
             /// @brief Faces of the system font.
-            static inline std::array<FT_Face, PlSharedFontType_Total> sm_faces{};
+            static inline std::array<FT_Face, PlSharedFontType_Total> m_faces{};
 
             /// @brief This is the font size. 12 is the default.
-            static inline int sm_fontSize = 12;
+            static inline int m_fontSize = 12;
 
             /// @brief Mapped glyph cache. To do: Use an atlas instead when I have more time.
-            static inline std::map<std::pair<uint32_t, int>, GlyphData> sm_glyphCache{};
+            static inline std::map<std::pair<uint32_t, int>, GlyphData> m_glyphCache{};
 
-            /// @brief Loads the codepoint from the system font using the currently set fontsize. Returns nullptr if the glyph
-            /// isn't found.
-            static FT_GlyphSlot load_glyph(uint32_t codepoint);
+            /// @brief Constructor.
+            SystemFont() = default;
+
+            /// @brief Creates and returns the only instance.
+            static SystemFont &get_instance();
+
+            /// @brief Loads the codepoint from the system font using the currently set fontsize. Returns nullptr if the
+            /// glyph isn't found.
+            FT_GlyphSlot load_glyph(uint32_t codepoint);
 
             /// @brief Uses the glyph slot passed to create a glyph texture.
-            static sdl::SharedTexture convert_slot_to_texture(FT_GlyphSlot slot);
+            sdl::SharedTexture convert_slot_to_texture(FT_GlyphSlot slot);
     };
 }

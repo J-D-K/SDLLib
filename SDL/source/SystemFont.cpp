@@ -9,13 +9,17 @@
 
 bool sdl::text::SystemFont::initialize()
 {
+    SystemFont &instance = SystemFont::get_instance();
+    FT_Library &ftLib    = instance.m_ftLib;
+    auto &faces          = instance.m_faces;
+
     // Init the services needed.
     const bool plError  = error::libnx(plInitialize(PlServiceType_User));
     const bool setError = error::libnx(setInitialize());
     if (plError || setError) { return false; }
 
     // Freetype library.
-    const bool initError = error::freetype(FT_Init_FreeType(&sm_ftLib));
+    const bool initError = error::freetype(FT_Init_FreeType(&ftLib));
     if (initError) { return false; }
 
     // Get the language code.
@@ -38,7 +42,7 @@ bool sdl::text::SystemFont::initialize()
         const FT_Byte *address = reinterpret_cast<const FT_Byte *>(fontData[i].address);
         const FT_Long size     = fontData[i].size;
 
-        const bool faceError = sdl::error::freetype(FT_New_Memory_Face(sm_ftLib, address, size, 0, &sm_faces[i]));
+        const bool faceError = sdl::error::freetype(FT_New_Memory_Face(m_ftLib, address, size, 0, &faces[i]));
         if (faceError) { return false; }
     }
 
@@ -47,8 +51,12 @@ bool sdl::text::SystemFont::initialize()
 
 void sdl::text::SystemFont::exit()
 {
+    SystemFont &instance = SystemFont::get_instance();
+    FT_Library &ftLib    = instance.m_ftLib;
+    auto &faces          = instance.m_faces;
+
     // Loop and free the faces in use.
-    for (FT_Face face : sm_faces)
+    for (FT_Face face : faces)
     {
         if (!face) { continue; }
 
@@ -56,33 +64,40 @@ void sdl::text::SystemFont::exit()
     }
 
     // Free the library.
-    FT_Done_FreeType(sm_ftLib);
+    FT_Done_FreeType(ftLib);
 
     // Exit the service.
     plExit();
 }
 
-void sdl::text::SystemFont::resize(int fontSize) noexcept
+void sdl::text::SystemFont::resize(int size) noexcept
 {
-    if (sm_fontSize == fontSize) { return; }
+    SystemFont &instance = SystemFont::get_instance();
+    auto &faces          = instance.m_faces;
+    int &fontSize        = instance.m_fontSize;
 
-    sm_fontSize = fontSize;
-    for (FT_Face face : sm_faces) { FT_Set_Pixel_Sizes(face, 0, fontSize); }
+    if (size == fontSize) { return; }
+
+    fontSize = size;
+    for (FT_Face face : faces) { FT_Set_Pixel_Sizes(face, 0, fontSize); }
 }
 
 sdl::text::OptionalGlyph sdl::text::SystemFont::find_load_glyph(uint32_t codepoint)
 {
+    SystemFont &instance = SystemFont::get_instance();
+    auto &glyphCache     = instance.m_glyphCache;
+
     // If it's already loaded with the current font size, find it and return it.
-    const auto mapPair  = std::make_pair(sm_fontSize, codepoint);
-    const auto findPair = sm_glyphCache.find(mapPair);
-    if (findPair != sm_glyphCache.end()) { return findPair->second; }
+    const auto mapPair  = std::make_pair(m_fontSize, codepoint);
+    const auto findPair = glyphCache.find(mapPair);
+    if (findPair != glyphCache.end()) { return findPair->second; }
 
     // Attempt to load it from the font.
-    FT_GlyphSlot glyphSlot = SystemFont::load_glyph(codepoint);
+    FT_GlyphSlot glyphSlot = instance.load_glyph(codepoint);
     if (!glyphSlot) { return std::nullopt; }
 
     // Convert it to a texture.
-    sdl::SharedTexture glyphTexture = SystemFont::convert_slot_to_texture(glyphSlot);
+    sdl::SharedTexture glyphTexture = instance.convert_slot_to_texture(glyphSlot);
     if (!glyphTexture) { return std::nullopt; }
 
     const uint16_t width   = glyphSlot->bitmap.width;
@@ -90,17 +105,23 @@ sdl::text::OptionalGlyph sdl::text::SystemFont::find_load_glyph(uint32_t codepoi
     const int16_t advanceX = glyphSlot->advance.x >> 6;
     const int16_t top      = glyphSlot->bitmap_top;
     const int16_t left     = glyphSlot->bitmap_left;
-    sm_glyphCache[mapPair] = {width, height, advanceX, top, left, glyphTexture};
+    glyphCache[mapPair]    = {width, height, advanceX, top, left, glyphTexture};
 
-    return sm_glyphCache.at(mapPair);
+    return glyphCache.at(mapPair);
 }
 
 //                      ---- Private functions ----
 
+sdl::text::SystemFont &sdl::text::SystemFont::get_instance()
+{
+    static sdl::text::SystemFont instance{};
+    return instance;
+}
+
 FT_GlyphSlot sdl::text::SystemFont::load_glyph(uint32_t codepoint)
 {
     // Loop through all of the faces to find the glyph we need.
-    for (FT_Face face : sm_faces)
+    for (FT_Face face : m_faces)
     {
         if (!face) { continue; }
 
