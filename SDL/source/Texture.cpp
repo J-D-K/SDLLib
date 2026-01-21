@@ -52,6 +52,10 @@ sdl2::Texture::~Texture()
 
 //                      ---- Public Functions ----
 
+int sdl2::Texture::get_width() const noexcept { return m_width; }
+
+int sdl2::Texture::get_height() const noexcept { return m_height; }
+
 bool sdl2::Texture::render(int x, int y)
 {
     // Bail if these are set.

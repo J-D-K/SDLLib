@@ -35,6 +35,12 @@ namespace sdl2
             /// @brief Destructs the texture.
             ~Texture();
 
+            /// @brief Returns the width of the texture.
+            int get_width() const noexcept;
+
+            /// @brief Returns the height of the texture.
+            int get_height() const noexcept;
+
             /// @brief Renders the texture at the coordinates passed.
             /// @param x X coordinate.
             /// @param y Y coordinate.

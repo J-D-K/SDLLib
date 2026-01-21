@@ -31,7 +31,7 @@ void sdl2::Input::update() noexcept
     m_currentFrame = m_padState.buttons_cur;
 }
 
-bool sdl2::Input::button_pressed(HidNpadButton button) noexcept
+bool sdl2::Input::button_pressed(HidNpadButton button) const noexcept
 {
     // Bools to store data.
     bool previousFrame{};
@@ -44,7 +44,7 @@ bool sdl2::Input::button_pressed(HidNpadButton button) noexcept
     return !previousFrame && currentFrame;
 }
 
-bool sdl2::Input::button_held(HidNpadButton button) noexcept
+bool sdl2::Input::button_held(HidNpadButton button) const noexcept
 {
     bool previousFrame{};
     bool currentFrame{};
@@ -54,7 +54,7 @@ bool sdl2::Input::button_held(HidNpadButton button) noexcept
     return previousFrame && currentFrame;
 }
 
-bool sdl2::Input::button_released(HidNpadButton button) noexcept
+bool sdl2::Input::button_released(HidNpadButton button) const noexcept
 {
     bool previousFrame{};
     bool currentFrame{};

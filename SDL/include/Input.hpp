@@ -16,15 +16,15 @@ namespace sdl2
 
             /// @brief Returns whether or not the button passed was pressed.
             /// @param button Button to check.
-            bool button_pressed(HidNpadButton button) noexcept;
+            bool button_pressed(HidNpadButton button) const noexcept;
 
             /// @brief Returns whether or not the button passed was held.
             /// @param button Button to check.
-            bool button_held(HidNpadButton button) noexcept;
+            bool button_held(HidNpadButton button) const noexcept;
 
             /// @brief Returns whether or not the button passed was released.
             /// @param button Button to check.
-            bool button_released(HidNpadButton button) noexcept;
+            bool button_released(HidNpadButton button) const noexcept;
 
         private:
             /// @brief Pad state used for input.
@@ -40,7 +40,7 @@ namespace sdl2
             /// @param button Button to check.
             /// @param previous Bool for previous frame.
             /// @param current Bool for current frame.
-            inline void get_frame_states(HidNpadButton button, bool &previous, bool &current)
+            inline void get_frame_states(HidNpadButton button, bool &previous, bool &current) const noexcept
             {
                 previous = m_previousFrame & button;
                 current  = m_currentFrame & button;

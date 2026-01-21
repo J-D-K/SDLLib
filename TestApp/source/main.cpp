@@ -1,10 +1,10 @@
-#include "TestApp.hpp"
+#include "Game.hpp"
 #include "sdl.hpp"
 
 int main(void)
 {
     romfsInit();
 
-    TestApp testApp{};
-    return testApp.run();
+    Game game{};
+    return game.run();
 }
