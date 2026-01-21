@@ -2,6 +2,7 @@
 #include "Object.hpp"
 #include "sdl.hpp"
 
+#include <span>
 #include <vector>
 
 class Game final
@@ -12,6 +13,12 @@ class Game final
 
         /// @brief Runs the application.
         int run() noexcept;
+
+        /// @brief Adds the passed amount to the score count.
+        void add_to_score(int add) noexcept;
+
+        /// @brief Returns a span of all of the in game objects.
+        std::span<const UniqueObject> get_game_objects() const noexcept;
 
         /// @brief Templated function to make adding objects to the game easier.
         /// @tparam ObjectType Type of object to add.
@@ -46,7 +53,13 @@ class Game final
         sdl2::SharedFont m_font{};
 
         /// @brief Vector of objects.
-        std::vector<std::unique_ptr<Object>> m_objects{};
+        std::vector<UniqueObject> m_objects{};
+
+        /// @brief Current score for the game.
+        int m_score{};
+
+        /// @brief This is the "level". Really used as a spawn chance.
+        int m_level{1};
 
         /// @brief Runs the update routine.
         void update();

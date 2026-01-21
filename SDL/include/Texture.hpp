@@ -41,6 +41,10 @@ namespace sdl2
             /// @brief Returns the height of the texture.
             int get_height() const noexcept;
 
+            /// @brief Sets the color mod of the texture.
+            /// @param color Color to set the mod to.
+            bool set_color_mod(SDL_Color color);
+
             /// @brief Renders the texture at the coordinates passed.
             /// @param x X coordinate.
             /// @param y Y coordinate.
