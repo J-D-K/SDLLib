@@ -58,7 +58,36 @@ namespace sdl2
                     // Return it.
                     return resource;
                 }
+                return nullptr;
+            }
 
+            /// @brief Templated function to allow derived resources for the managers.
+            /// @tparam Type Derived resource type.
+            /// @tparam ...Args Arguments to forward.
+            /// @param name Name of the resource.
+            template <typename Type, typename... Args>
+            static std::shared_ptr<ResourceType> create_load_resource(std::string_view name, Args &&...args)
+            {
+                // Assert this so no surprises.
+                static_assert(std::derived_from<Type, ResourceType> == true, "ResourceManager: Type is not derived from base.");
+
+                // Repeat above, pretty much.
+                ResourceManager &instance = ResourceManager::get_instance();
+                instance.purge_expired();
+
+                auto &resourceMap = instance.m_resourceMap;
+
+                const auto &findResource = resourceMap.find(name);
+                if (findResource != resourceMap.end() && !findResource->second.expired())
+                {
+                    return findResource->second.lock();
+                }
+                else
+                {
+                    const auto resource = std::make_shared<Type>(std::forward<Args>(args)...);
+                    resourceMap.try_emplace(std::string{name}, resource);
+                    return resource;
+                }
                 return nullptr;
             }
 

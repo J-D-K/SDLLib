@@ -7,8 +7,9 @@ namespace
 
     constexpr SDL_Color CLEAR_COLOR = {.r = 0x00, .g = 0x00, .b = 0x00, .a = 0xFF};
 
-    constexpr std::string_view FONT_PATH = "romfs:/assets/MainFont.ttf";
-    constexpr int FONT_SIZE              = 24;
+    constexpr std::string_view SYSTEM_FONT_NAME = "SystemFont";
+    constexpr std::string_view FONT_PATH        = "romfs:/assets/MainFont.ttf";
+    constexpr int FONT_SIZE                     = 24;
 }
 
 //                      ---- Construction ----
@@ -23,7 +24,7 @@ TestApp::TestApp()
 
     sdl2::Texture::initialize(m_renderer);
 
-    m_testFont    = sdl2::FontManager::create_load_resource(FONT_PATH, FONT_PATH, 24);
+    m_testFont    = sdl2::FontManager::create_load_resource<sdl2::SystemFont>(SYSTEM_FONT_NAME, 24);
     m_testTexture = sdl2::TextureManager::create_load_resource(TEXTURE_PATH, TEXTURE_PATH);
 }
 

@@ -4,7 +4,6 @@
 #include "OptionalReference.hpp"
 #include "ResourceManager.hpp"
 
-#include <fstream>
 #include <string_view>
 #include <unordered_map>
 
@@ -33,7 +32,7 @@ namespace sdl2
             Font(std::string_view fontPath, int pixelSize);
 
             /// @brief Destructs the font.
-            ~Font();
+            virtual ~Font();
 
             /// @brief Renders text at the coordinates provided.
             /// @param x X coordinate.

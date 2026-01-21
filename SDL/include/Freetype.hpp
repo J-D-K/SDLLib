@@ -8,6 +8,7 @@ namespace sdl2
 {
     /// @brief Forward declaration to allow the Font class to access the FT_Library.
     class Font;
+    class SystemFont;
 
     /// @brief Wrapper class around Freetype.
     class Freetype final : public sdl2::CoreComponent
@@ -45,6 +46,7 @@ namespace sdl2
 
             /// @brief This allows the Font class to use the library.
             friend class Font;
+            friend class SystemFont;
 
         private:
             /// @brief Library.

@@ -6,4 +6,5 @@
 #include "ResourceManager.hpp"
 #include "SDL2.hpp"
 #include "Surface.hpp"
+#include "SystemFont.hpp"
 #include "Window.hpp"

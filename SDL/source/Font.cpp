@@ -71,7 +71,7 @@ void sdl2::Font::render_text(int x, int y, std::string_view text)
         }
 
         // Try to find the glyph.
-        const auto getGlyph = Font::find_load_glyph(codepoint);
+        const auto getGlyph = find_load_glyph(codepoint);
         // If the optional is empty, just continue the loop. No glyph was found.
         if (!getGlyph.has_value())
         {
