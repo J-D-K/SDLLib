@@ -1,68 +1,34 @@
 #pragma once
-#include "GlyphData.hpp"
+#include "Font.hpp"
+#include "PlService.hpp"
 
 #include <array>
-#include <map>
-#include <optional>
 #include <switch.h>
 
-// clang-format off
-#include <ft2build.h>
-#include FT_FREETYPE_H
-// clang-format on
-
-namespace sdl::text
+namespace sdl2
 {
-    // This makes some things easier to read and type.
-    using OptionalGlyph = std::optional<std::reference_wrapper<sdl::text::GlyphData>>;
-
-    /// @brief This class serves to wrap FreeType and the System font.
-    class SystemFont final
+    class SystemFont final : public Font
     {
         public:
-            // Singleton. None of this allowed.
-            SystemFont(const SystemFont &)            = delete;
-            SystemFont(SystemFont &&)                 = delete;
-            SystemFont &operator=(const SystemFont &) = delete;
-            SystemFont &operator=(SystemFont &&)      = delete;
+            /// @brief Creates a new system font instance.
+            /// @param pixelSize Vertical size of the font in pixels.
+            SystemFont(int pixelSize);
 
-            /// @brief Initializes Freetype and the system font.
-            static bool initialize();
-
-            /// @brief Exits the PL service and freetype.
-            static void exit();
-
-            /// @brief Resizes the font in freetype.
-            static void resize(int size) noexcept;
-
-            /// @brief Attempts to find or load the codepoint passed.
-            /// @param codepoint Codepoint.
-            static sdl::text::OptionalGlyph find_load_glyph(uint32_t codepoint);
+            /// @brief Destructor. Frees faces.
+            ~SystemFont();
 
         private:
-            /// @brief Freetype library.
-            static inline FT_Library m_ftLib{};
+            /// @brief Total number of faces loaded from the system.
+            int m_total{};
 
-            /// @brief Faces of the system font.
-            static inline std::array<FT_Face, PlSharedFontType_Total> m_faces{};
+            /// @brief Array of font faces.
+            std::array<FT_Face, PlSharedFontType_Total> m_fontFaces{};
 
-            /// @brief This is the font size. 12 is the default.
-            static inline int m_fontSize = 12;
+            /// @brief Static instance shared by all instances.
+            static inline PlService sm_plService{};
 
-            /// @brief Mapped glyph cache. To do: Use an atlas instead when I have more time.
-            static inline std::map<std::pair<uint32_t, int>, GlyphData> m_glyphCache{};
-
-            /// @brief Constructor.
-            SystemFont() = default;
-
-            /// @brief Creates and returns the only instance.
-            static SystemFont &get_instance();
-
-            /// @brief Loads the codepoint from the system font using the currently set fontsize. Returns nullptr if the
-            /// glyph isn't found.
-            FT_GlyphSlot load_glyph(uint32_t codepoint);
-
-            /// @brief Uses the glyph slot passed to create a glyph texture.
-            sdl::SharedTexture convert_slot_to_texture(FT_GlyphSlot slot);
+            /// @brief Override for using the SystemFont instead of an external one.
+            /// @param codepoint Codepoint to search for.
+            OptionalReference<Font::GlyphData> find_load_glyph(uint32_t codepoint) override;
     };
 }

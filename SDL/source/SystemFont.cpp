@@ -1,163 +1,95 @@
 #include "SystemFont.hpp"
 
-#include "error.hpp"
-#include "sdl.hpp"
+#include <fstream>
 
-#include <span>
+//                      ---- Construction ----
 
-//                      ---- Public functions ----
-
-bool sdl::text::SystemFont::initialize()
+sdl2::SystemFont::SystemFont(int pixelSize)
 {
-    SystemFont &instance = SystemFont::get_instance();
-    FT_Library &ftLib    = instance.m_ftLib;
-    auto &faces          = instance.m_faces;
+    // Set pixel size.
+    m_pixelSize = pixelSize;
 
-    // Init the services needed.
-    const bool plError  = error::libnx(plInitialize(PlServiceType_User));
-    const bool setError = error::libnx(setInitialize());
-    if (plError || setError) { return false; }
+    // Grab reference to font array.
+    const auto &plFontArray = sm_plService.m_sharedFonts;
 
-    // Freetype library.
-    const bool initError = error::freetype(FT_Init_FreeType(&ftLib));
-    if (initError) { return false; }
-
-    // Get the language code.
-    uint64_t languageCode{};
-    const bool codeError = error::libnx(setGetLanguageCode(&languageCode));
-    if (codeError) { return false; }
-
-    // set is no longer needed.
-    setExit();
-
-    // Load the data for the shared fonts.
-    int32_t total{};
-    std::array<PlFontData, PlSharedFontType_Total> fontData{};
-    const bool fontError = error::libnx(plGetSharedFont(languageCode, fontData.data(), PlSharedFontType_Total, &total));
-    if (fontError) { return false; }
-
-    for (int32_t i = 0; i < total; i++)
+    // Loop through, load, and size.
+    size_t faceIndex{};
+    for (const PlFontData &fontData : plFontArray)
     {
-        // Cast these to make them easier to work with.
-        const FT_Byte *address = reinterpret_cast<const FT_Byte *>(fontData[i].address);
-        const FT_Long size     = fontData[i].size;
+        // This makes the next thing easier to read.
+        const FT_Byte *fontBinary = reinterpret_cast<const FT_Byte *>(fontData.address);
 
-        const bool faceError = sdl::error::freetype(FT_New_Memory_Face(m_ftLib, address, size, 0, &faces[i]));
-        if (faceError) { return false; }
+        // Init face.
+        const FT_Error faceError =
+            FT_New_Memory_Face(sm_freetype.m_library, fontBinary, fontData.size, 0, &m_fontFaces[faceIndex]);
+        if (faceError != 0) { continue; }
+
+        // Set the pixel size.
+        FT_Set_Pixel_Sizes(m_fontFaces[faceIndex++], 0, m_pixelSize);
+    }
+}
+
+sdl2::SystemFont::~SystemFont()
+{
+    // Loop and free faces.
+    for (FT_Face fontFace : m_fontFaces) { FT_Done_Face(fontFace); }
+}
+
+//                      ---- Private Functions ----
+
+OptionalReference<sdl2::Font::GlyphData> sdl2::SystemFont::find_load_glyph(uint32_t codepoint)
+{
+    std::ofstream sysFontDebug{"sdmc:/sysfont.txt"};
+
+    // Search first.
+    const auto findGlyph = m_cacheMap.find(codepoint);
+    if (findGlyph != m_cacheMap.end()) { return findGlyph->second; }
+
+    // Loop and try to find the index.
+    FT_Face fontFace{};
+    FT_UInt charIndex{};
+    for (FT_Face currentFace : m_fontFaces)
+    {
+        if (!currentFace) { continue; }
+
+        // Try to get the index. If it's found, break the loop.
+        charIndex = FT_Get_Char_Index(currentFace, codepoint);
+        if (charIndex != 0)
+        {
+            sysFontDebug << "Character found?" << std::endl;
+            fontFace = currentFace;
+            break;
+        }
     }
 
-    return true;
-}
+    // If the character index is still 0 here, bail.
+    if (charIndex == 0) { return std::nullopt; }
+    sysFontDebug << "charIndex" << charIndex << std::endl;
 
-void sdl::text::SystemFont::exit()
-{
-    SystemFont &instance = SystemFont::get_instance();
-    FT_Library &ftLib    = instance.m_ftLib;
-    auto &faces          = instance.m_faces;
+    // Load and render the glyph.
+    const FT_Error loadError = FT_Load_Glyph(fontFace, charIndex, FT_LOAD_RENDER);
+    if (loadError != 0) { return std::nullopt; }
+    sysFontDebug << "Character rendered." << std::endl;
 
-    // Loop and free the faces in use.
-    for (FT_Face face : faces)
-    {
-        if (!face) { continue; }
+    // Make things easier to read and type.
+    const FT_GlyphSlot glyphSlot = fontFace->glyph;
+    const FT_Bitmap glyphBitmap  = glyphSlot->bitmap;
 
-        FT_Done_Face(face);
-    }
+    // Convert.
+    sdl2::SharedTexture glyphTexture = Font::convert_glyph_to_texture(codepoint, glyphBitmap);
+    sysFontDebug << "Texture" << std::endl;
 
-    // Free the library.
-    FT_Done_FreeType(ftLib);
+    // Data for cache.
+    const Font::GlyphData cacheData = {.advanceX = static_cast<int16_t>(glyphSlot->advance.x >> 6),
+                                       .top      = static_cast<int16_t>(glyphSlot->bitmap_top),
+                                       .left     = static_cast<int16_t>(glyphSlot->bitmap_left),
+                                       .texture  = glyphTexture};
 
-    // Exit the service.
-    plExit();
-}
+    // Map is weird and returns this as a pair?
+    const auto emplacePair = m_cacheMap.try_emplace(codepoint, cacheData);
+    if (!emplacePair.second) { return std::nullopt; }
+    sysFontDebug << "Emplace" << std::endl;
 
-void sdl::text::SystemFont::resize(int size) noexcept
-{
-    SystemFont &instance = SystemFont::get_instance();
-    auto &faces          = instance.m_faces;
-    int &fontSize        = instance.m_fontSize;
-
-    if (size == fontSize) { return; }
-
-    fontSize = size;
-    for (FT_Face face : faces) { FT_Set_Pixel_Sizes(face, 0, fontSize); }
-}
-
-sdl::text::OptionalGlyph sdl::text::SystemFont::find_load_glyph(uint32_t codepoint)
-{
-    SystemFont &instance = SystemFont::get_instance();
-    auto &glyphCache     = instance.m_glyphCache;
-
-    // If it's already loaded with the current font size, find it and return it.
-    const auto mapPair  = std::make_pair(m_fontSize, codepoint);
-    const auto findPair = glyphCache.find(mapPair);
-    if (findPair != glyphCache.end()) { return findPair->second; }
-
-    // Attempt to load it from the font.
-    FT_GlyphSlot glyphSlot = instance.load_glyph(codepoint);
-    if (!glyphSlot) { return std::nullopt; }
-
-    // Convert it to a texture.
-    sdl::SharedTexture glyphTexture = instance.convert_slot_to_texture(glyphSlot);
-    if (!glyphTexture) { return std::nullopt; }
-
-    const uint16_t width   = glyphSlot->bitmap.width;
-    const uint16_t height  = glyphSlot->bitmap.rows;
-    const int16_t advanceX = glyphSlot->advance.x >> 6;
-    const int16_t top      = glyphSlot->bitmap_top;
-    const int16_t left     = glyphSlot->bitmap_left;
-    glyphCache[mapPair]    = {width, height, advanceX, top, left, glyphTexture};
-
-    return glyphCache.at(mapPair);
-}
-
-//                      ---- Private functions ----
-
-sdl::text::SystemFont &sdl::text::SystemFont::get_instance()
-{
-    static sdl::text::SystemFont instance{};
-    return instance;
-}
-
-FT_GlyphSlot sdl::text::SystemFont::load_glyph(uint32_t codepoint)
-{
-    // Loop through all of the faces to find the glyph we need.
-    for (FT_Face face : m_faces)
-    {
-        if (!face) { continue; }
-
-        const FT_UInt index = FT_Get_Char_Index(face, codepoint);
-        FT_Error loadError  = FT_Load_Glyph(face, index, FT_LOAD_RENDER);
-        if (index != 0 && loadError == 0) { return face->glyph; }
-    }
-
-    return nullptr;
-}
-
-sdl::SharedTexture sdl::text::SystemFont::convert_slot_to_texture(FT_GlyphSlot slot)
-{
-    // This is the base white we're using. The alpha is blank and replaced with the freetype bitmap values.
-    static constexpr uint32_t BASE_COLOR = 0xFFFFFF00;
-
-    // This is just to ID glyphs for the manager.
-    static int glyphID{};
-
-    // We need this stuff.
-    const size_t bitmapWidth  = slot->bitmap.width;
-    const size_t bitmapHeight = slot->bitmap.rows;
-    const size_t bitmapSize   = bitmapWidth * bitmapHeight;
-
-    // Temporary surface we're blitting to.
-    sdl::Surface tempSurface = sdl::surface::create_rgb(bitmapWidth, bitmapHeight);
-    if (!tempSurface) { return nullptr; }
-
-    // Spans for blitting raw pixels.
-    const std::span<uint8_t> bitmapSpan{slot->bitmap.buffer, bitmapSize};
-    const std::span<uint32_t> surfacePixels{reinterpret_cast<uint32_t *>(tempSurface.get()->pixels), bitmapSize};
-
-    // Loop and construct our base glyph pixels.
-    size_t bitmapOffset{};
-    for (uint32_t &pixel : surfacePixels) { pixel = BASE_COLOR | bitmapSpan[bitmapOffset++]; }
-
-    const std::string glyphName = "Glyph_" + std::to_string(glyphID++);
-    return sdl::TextureManager::load(glyphName, tempSurface);
+    // Finally return.
+    return m_cacheMap.at(codepoint);
 }

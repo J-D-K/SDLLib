@@ -1,63 +1,122 @@
 #pragma once
-#include "Sound.hpp"
+#include "Font.hpp"
 #include "Texture.hpp"
 
 #include <memory>
 #include <string>
 #include <unordered_map>
 
-namespace sdl
+namespace sdl2
 {
-    /// @brief Static class that keeps track of resources so I don't need to worry about memory leaks.
+    /// @brief Shared Texture definition.
+    using SharedTexture = std::shared_ptr<Texture>;
+
+    /// @brief Shared font definition.
+    using SharedFont = std::shared_ptr<Font>;
+
+    /// @brief Templated, generic resource manager.
+    /// @tparam ResourceType Type of resource being used.
     template <typename ResourceType>
-    class ResourceManager
+    class ResourceManager final
     {
         public:
+            // No copying or moving.
             ResourceManager(const ResourceManager &)            = delete;
             ResourceManager(ResourceManager &&)                 = delete;
             ResourceManager &operator=(const ResourceManager &) = delete;
             ResourceManager &operator=(ResourceManager &&)      = delete;
 
-            /// @brief Searches for and either returns or creates a new sdl::Sharedtexture.
-            /// @param textureName Name of the texture. This is needed to map it and keep track of it.
-            /// @param arguments Arguments of the constructor used. See texture.hpp for that.
-            /// @return sdl::SharedTexture.
+            /// @brief Templated resource creation/loading function that passed parameters to the constructor.
+            /// @param name Internal "name" of the resource.
+            /// @param ...args Variadic arguments to forward to the constructor.
             template <typename... Args>
-            static std::shared_ptr<ResourceType> load(std::string_view resourceName, Args &&...args)
+            static std::shared_ptr<ResourceType> create_load_resource(std::string_view name, Args &&...args)
             {
-                // This is the pointer we're returning.
-                std::shared_ptr<ResourceType> returnResource{};
+                // Grab the instance.
+                ResourceManager &instance = ResourceManager::get_instance();
 
-                // Need the instance to do anything, really.
-                ResourceManager &manager = ResourceManager::get_instance();
-                auto &resourceMap        = manager.m_resourceMap;
+                // Run purge routine.
+                instance.purge_expired();
 
-                // This will purge expired resources/weak_ptrs from the map.
-                manager.purge_expired();
+                // Reference to map.
+                auto &resourceMap = instance.m_resourceMap;
 
-                auto findResource  = resourceMap.find(resourceName);
-                const bool exists  = findResource != resourceMap.end();
-                const bool expired = exists && findResource->second.expired();
-                if (exists && !expired) { returnResource = findResource->second.lock(); }
+                // Search for resource.
+                const auto &findResource = resourceMap.find(name);
+                if (findResource != resourceMap.end() && !findResource->second.expired())
+                {
+                    return findResource->second.lock();
+                }
                 else
                 {
-                    returnResource = std::make_shared<ResourceType>(std::forward<Args>(args)...);
-                    resourceMap.emplace(std::string{resourceName}, returnResource);
-                }
+                    // Create the resource.
+                    auto resource = std::make_shared<ResourceType>(std::forward<Args>(args)...);
 
-                return returnResource;
+                    // Map it.
+                    resourceMap.try_emplace(std::string{name}, resource);
+
+                    // Return it.
+                    return resource;
+                }
+                return nullptr;
+            }
+
+            /// @brief Templated function to allow derived resources for the managers.
+            /// @tparam Type Derived resource type.
+            /// @tparam ...Args Arguments to forward.
+            /// @param name Name of the resource.
+            template <typename Type, typename... Args>
+            static std::shared_ptr<ResourceType> create_load_resource(std::string_view name, Args &&...args)
+            {
+                // Assert this so no surprises.
+                static_assert(std::derived_from<Type, ResourceType> == true, "ResourceManager: Type is not derived from base.");
+
+                // Repeat above, pretty much.
+                ResourceManager &instance = ResourceManager::get_instance();
+                instance.purge_expired();
+
+                auto &resourceMap = instance.m_resourceMap;
+
+                const auto &findResource = resourceMap.find(name);
+                if (findResource != resourceMap.end() && !findResource->second.expired())
+                {
+                    return findResource->second.lock();
+                }
+                else
+                {
+                    const auto resource = std::make_shared<Type>(std::forward<Args>(args)...);
+                    resourceMap.try_emplace(std::string{name}, resource);
+                    return resource;
+                }
+                return nullptr;
             }
 
         private:
-            /// @brief Prevents creating an instance of this class.
+            // clang-format off
+            struct StringViewHash
+            {
+                using is_transparent = void;
+                size_t operator() (std::string_view view) const noexcept { return std::hash<std::string_view>{}(view); }
+            };
+
+            struct StringViewEquals
+            {
+                using is_transparent = void;
+                bool operator() (std::string_view viewA, std::string_view viewB) const noexcept { return viewA == viewB; }
+            };
+            // clang-format on
+
+            /// @brief Map with weak pointers to resources.
+            std::unordered_map<std::string, std::weak_ptr<ResourceType>, StringViewHash, StringViewEquals> m_resourceMap{};
+
+            /// @brief Private constructor.
             ResourceManager() = default;
 
-            /// @brief Returns the only instance of the class. Private since it shouldn't be used outside of this class.
-            /// @return Reference to the static instance of this class.
+            /// @brief Returns the instance.
             static ResourceManager &get_instance()
             {
-                static ResourceManager Instance;
-                return Instance;
+                static ResourceManager instance;
+                return instance;
             }
 
             /// @brief Purges expired resources from the map.
@@ -65,36 +124,24 @@ namespace sdl
             {
                 for (auto iter = m_resourceMap.begin(); iter != m_resourceMap.end();)
                 {
-                    if (iter->second.expired())
+                    // Weak ptr.
+                    const auto &weakPtr = iter->second;
+
+                    // If it's expired, purge it.
+                    if (weakPtr.expired())
                     {
                         iter = m_resourceMap.erase(iter);
                         continue;
                     }
+
+                    // Increment iterator.
                     ++iter;
                 }
             }
-
-            // clang-format off
-            struct StringViewHash
-            {
-                using is_transparent = void;
-                size_t operator()(std::string_view view) const noexcept { return std::hash<std::string_view>{}(view); }
-            };
-
-            struct StringViewEquals
-            {
-                using is_transparent = void;
-                bool operator()(std::string_view viewA, std::string_view viewB) const noexcept { return viewA == viewB; }
-            };
-            // clang-format on
-
-            /// @brief Map of weak_ptrs to textures so they are freed automatically once they're not needed anymore.
-            std::unordered_map<std::string, std::weak_ptr<ResourceType>, StringViewHash, StringViewEquals> m_resourceMap;
     };
 
-    /// @brief This is the instance for Textures/images
-    using TextureManager = sdl::ResourceManager<sdl::Texture>;
+    /// @brief Texture manager instance.
+    using TextureManager = ResourceManager<Texture>;
 
-    /// @brief This is the instance for sounds.
-    using SoundManager = sdl::ResourceManager<sdl::Sound>;
-} // namespace sdl
+    using FontManager = ResourceManager<Font>;
+}
