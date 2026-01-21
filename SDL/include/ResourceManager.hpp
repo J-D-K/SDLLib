@@ -1,4 +1,5 @@
 #pragma once
+#include "Font.hpp"
 #include "Texture.hpp"
 
 #include <memory>
@@ -10,6 +11,11 @@ namespace sdl2
     /// @brief Shared Texture definition.
     using SharedTexture = std::shared_ptr<Texture>;
 
+    /// @brief Shared font definition.
+    using SharedFont = std::shared_ptr<Font>;
+
+    /// @brief Templated, generic resource manager.
+    /// @tparam ResourceType Type of resource being used.
     template <typename ResourceType>
     class ResourceManager final
     {
@@ -24,7 +30,7 @@ namespace sdl2
             /// @param name Internal "name" of the resource.
             /// @param ...args Variadic arguments to forward to the constructor.
             template <typename... Args>
-            std::shared_ptr<ResourceType> create_load_resource(std::string_view name, Args &&...args)
+            static std::shared_ptr<ResourceType> create_load_resource(std::string_view name, Args &&...args)
             {
                 // Grab the instance.
                 ResourceManager &instance = ResourceManager::get_instance();
@@ -78,7 +84,7 @@ namespace sdl2
             ResourceManager() = default;
 
             /// @brief Returns the instance.
-            ResourceManager &get_instance()
+            static ResourceManager &get_instance()
             {
                 static ResourceManager instance;
                 return instance;
@@ -107,4 +113,6 @@ namespace sdl2
 
     /// @brief Texture manager instance.
     using TextureManager = ResourceManager<Texture>;
+
+    using FontManager = ResourceManager<Font>;
 }

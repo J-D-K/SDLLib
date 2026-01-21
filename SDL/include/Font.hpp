@@ -4,6 +4,7 @@
 #include "OptionalReference.hpp"
 #include "ResourceManager.hpp"
 
+#include <fstream>
 #include <string_view>
 #include <unordered_map>
 

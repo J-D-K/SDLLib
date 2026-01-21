@@ -22,4 +22,10 @@ class TestApp final
 
         /// @brief Input instance.
         sdl2::Input m_input;
+
+        /// @brief Font to test text rendering.
+        sdl2::SharedFont m_testFont{};
+
+        /// @brief Test texture.
+        sdl2::SharedTexture m_testTexture{};
 };

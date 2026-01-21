@@ -27,6 +27,11 @@ sdl2::Renderer::~Renderer()
 
 //                      ---- Public Functions ----
 
+bool sdl2::Renderer::set_logical_presentation(int width, int height)
+{
+    return SDL_RenderSetLogicalSize(m_renderer, width, height) == 0;
+}
+
 bool sdl2::Renderer::frame_begin(SDL_Color clearColor)
 {
     // Start by clearing.

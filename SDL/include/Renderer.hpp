@@ -20,6 +20,11 @@ namespace sdl2
             /// @brief Destructs renderer.
             ~Renderer();
 
+            /// @brief Sets the logical width and height of the renderer.
+            /// @param width Width of the renderer.
+            /// @param height Height of the renderer.
+            bool set_logical_presentation(int width, int height);
+
             /// @brief Begins the frame and clears the target to the color passed.
             /// @param clearColor Color to clear the target with.
             bool frame_begin(SDL_Color clearColor);

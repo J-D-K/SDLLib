@@ -13,6 +13,12 @@ namespace sdl2
     class Freetype final : public sdl2::CoreComponent
     {
         public:
+            // No copying or moving.
+            Freetype(const Freetype &)            = delete;
+            Freetype(Freetype &&)                 = delete;
+            Freetype &operator=(const Freetype &) = delete;
+            Freetype &operator=(Freetype &&)      = delete;
+
             /// @brief Constructor. Initializes library.
             Freetype()
             {

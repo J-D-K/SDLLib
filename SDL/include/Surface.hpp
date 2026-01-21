@@ -25,7 +25,7 @@ namespace sdl2
             static constexpr uint32_t ALPHA_MASK = 0x000000FF;
 
             // Bit depth.
-            static constexpr int BIT_DEPTH = 8;
+            static constexpr int BIT_DEPTH = 32;
 
             // I didn't want the return to be too much of a mess.
             SDL_Surface *returnSurface =

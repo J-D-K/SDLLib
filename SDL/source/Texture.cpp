@@ -2,6 +2,9 @@
 
 #include <SDL2/SDL_image.h>
 
+#define RETURN_ON_INVALID_RENDERER(renderer)                                                                                   \
+    if (!renderer) { return; }
+
 #define RETURN_ON_INVALID_TEXTURE(renderer, texture)                                                                           \
     if (!renderer || !texture) { return false; }
 
@@ -9,7 +12,7 @@
 
 sdl2::Texture::Texture(std::string_view filePath)
 {
-    if (!sm_renderer) { return; }
+    RETURN_ON_INVALID_RENDERER(sm_renderer);
 
     // Load the texture.
     m_texture = IMG_LoadTexture(sm_renderer, filePath.data());
@@ -24,10 +27,9 @@ sdl2::Texture::Texture(sdl2::Surface &surface)
     : m_width(surface.get()->w)
     , m_height(surface.get()->h)
 {
-    if (!sm_renderer) { return; }
+    RETURN_ON_INVALID_RENDERER(sm_renderer);
 
-    m_texture = SDL_CreateTextureFromSurface(sm_renderer, surface.get());
-
+    m_texture       = SDL_CreateTextureFromSurface(sm_renderer, surface.get());
     m_isInitialized = true;
 }
 
@@ -35,10 +37,9 @@ sdl2::Texture::Texture(int width, int height, SDL_TextureAccess textureAccess)
     : m_width(width)
     , m_height(height)
 {
-    if (!sm_renderer) { return; }
+    RETURN_ON_INVALID_RENDERER(sm_renderer);
 
-    m_texture = SDL_CreateTexture(sm_renderer, SDL_PIXELFORMAT_ARGB8888, textureAccess, width, height);
-
+    m_texture       = SDL_CreateTexture(sm_renderer, SDL_PIXELFORMAT_ARGB8888, textureAccess, width, height);
     m_isInitialized = true;
 }
 
