@@ -6,6 +6,10 @@
 
 namespace sdl2
 {
+    /// @brief Forward declaration to prevent clashes.
+    class Texture;
+
+    /// @brief Renderer wrapping class.
     class Renderer final : public sdl2::CoreComponent
     {
         public:
@@ -22,6 +26,9 @@ namespace sdl2
 
             /// @brief Ends the render process and presents the target.
             void frame_end();
+
+            /// @brief This allows the texture class to access and use the renderer easier.
+            friend class Texture;
 
         private:
             /// @brief SDL Renderer.
