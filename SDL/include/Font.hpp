@@ -37,8 +37,9 @@ namespace sdl2
             /// @brief Renders text at the coordinates provided.
             /// @param x X coordinate.
             /// @param y Y coordinate.
+            /// @param color Color to render text with.
             /// @param text Text to render.
-            void render_text(int x, int y, std::string_view text);
+            void render_text(int x, int y, SDL_Color color, std::string_view text);
 
             /// @brief Renders text wrapped at the coordinates provided.
             /// @param x X coordinate.

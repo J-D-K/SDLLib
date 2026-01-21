@@ -46,7 +46,7 @@ sdl2::Font::~Font()
 
 //                      ---- Public Functions ----
 
-void sdl2::Font::render_text(int x, int y, std::string_view text)
+void sdl2::Font::render_text(int x, int y, SDL_Color color, std::string_view text)
 {
     // Need to store this for line breaks.
     const int originalX = x;
@@ -67,6 +67,7 @@ void sdl2::Font::render_text(int x, int y, std::string_view text)
         {
             x = originalX;
             y += m_pixelSize + (m_pixelSize / 4);
+            i += unitCount;
             continue;
         }
 
@@ -88,6 +89,9 @@ void sdl2::Font::render_text(int x, int y, std::string_view text)
             // Render coordinates.
             const int renderX = x + (glyphData.left);
             const int renderY = y + (m_pixelSize - glyphData.top);
+
+            // Set render color.
+            glyphData.texture->set_color_mod(color);
 
             glyphData.texture->render(renderX, renderY);
         }

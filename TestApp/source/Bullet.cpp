@@ -5,6 +5,7 @@
 //                      ---- Construction ----
 
 Bullet::Bullet(int x, int y)
+    : Object(Object::Type::Bullet)
 {
     // Path to load the sprite from.
     static constexpr std::string_view BULLET_PATH = "romfs:/assets/BulletA.png";

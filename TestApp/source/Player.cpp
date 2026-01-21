@@ -12,6 +12,7 @@ namespace
 //                      ---- Construction ----
 
 Player::Player()
+    : Object(Object::Type::Player)
 {
     static constexpr int PLAYER_START_X = 16;
 
