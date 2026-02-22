@@ -104,6 +104,79 @@ void sdl2::Font::render_text(int x, int y, SDL_Color color, std::string_view tex
     }
 }
 
+void sdl2::Font::render_text_wrapped(int x, int y, SDL_Color color, int maxWidth, std::string_view text)
+{
+    // Store this for later.
+    const int originalX = x;
+
+    // Adjusted max position.
+    const int maxPosition = x + maxWidth;
+
+    // Width of the current line we're rendering.
+    int currentWidth{};
+
+    // For the loop.
+    const int textLength = text.length();
+
+    // This is a laziness I mean repetition thing.
+    auto break_line = [&]()
+    {
+        x = originalX;
+        y += m_pixelSize * 1.2;
+        currentWidth = 0;
+    };
+
+    for (int i = 0; i < textLength;)
+    {
+        // Find the next breakpoint.
+        const size_t breakpoint = text.find_first_of(". ", i);
+        if (breakpoint != text.npos) { ++breakpoint; }
+
+        // Store the substring as a word.
+        const std::string_view word = text.substr(i, breakpoint - i);
+
+        // Grab the width and see if we need to break the line.
+        const size_t wordWidth = Font::get_text_width(word);
+        if (x + wordWidth >= maxPosition) { break_line(); }
+
+        // Just call the other render cause screw writing it all again.
+        Font::render_text(x, y, color, text);
+
+        // Realign.
+        i += word.length();
+        currentWidth += wordWidth;
+    }
+}
+
+int sdl2::Font::get_text_width(std::string_view text)
+{
+    // This is what we're returning.
+    int textWidth{};
+
+    const int textLength = text.length();
+
+    for (int i = 0; i < textLength;)
+    {
+        const uint8_t *string = reinterpret_cast<const uint8_t *>(&text[i]);
+
+        uint32_t codepoint{};
+        const ssize_t unitCount = decode_utf8(&codepoint, string);
+        if (unitCount <= 0) {}
+        else if (codepoint == L'\n')
+        {
+            i += unitCount;
+            continue;
+        } // Ignore line breaks.
+
+        // Load glyph.
+        auto glyph = Font::find_load_glyph(codepoint);
+        if (!glyph.has_value()) { continue; }
+
+        textWidth += glyph->get().advanceX;
+        i += unitCount;
+    }
+}
+
 //                      ---- Protected Functions ----
 
 OptionalReference<sdl2::Font::GlyphData> sdl2::Font::find_load_glyph(uint32_t codepoint)

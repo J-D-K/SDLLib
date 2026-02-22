@@ -46,11 +46,11 @@ namespace sdl2
             /// @param y Y coordinate.
             /// @param maxWidth Maximum width of the text before it's wrapped to a new line.
             /// @param text Text to render.
-            void render_text_wrapped(int x, int y, int maxWidth, std::string_view text);
+            void render_text_wrapped(int x, int y, SDL_Color color, int maxWidth, std::string_view text);
 
             /// @brief Gets the width of the text passed.
             /// @param text Text to get the width of.
-            size_t get_text_width(std::string_view text);
+            int get_text_width(std::string_view text);
 
         protected:
             /// @brief Stores the pixel size of the font.
