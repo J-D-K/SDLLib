@@ -14,6 +14,9 @@ namespace sdl2
     class Renderer final : public sdl2::CoreComponent
     {
         public:
+            /// @brief Default.
+            Renderer() = default;
+
             /// @brief Initializes the renderer.
             /// @param window Window.
             Renderer(sdl2::Window &window);
