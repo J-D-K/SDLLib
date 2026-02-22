@@ -3,6 +3,7 @@
 #include "Window.hpp"
 
 #include <SDL2/SDL.h>
+#include <memory>
 
 namespace sdl2
 {
@@ -24,6 +25,11 @@ namespace sdl2
             /// @param width Width of the renderer.
             /// @param height Height of the renderer.
             bool set_logical_presentation(int width, int height);
+
+            /// @brief Sets the render target.
+            /// @param target Target to render to.
+            /// @return True on success. False on failure.
+            bool set_render_target(std::shared_ptr<sdl2::Texture> target);
 
             /// @brief Begins the frame and clears the target to the color passed.
             /// @param clearColor Color to clear the target with.

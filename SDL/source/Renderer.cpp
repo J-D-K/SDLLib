@@ -1,5 +1,7 @@
 #include "Renderer.hpp"
 
+#include "Texture.hpp"
+
 #include <cstdint>
 
 namespace
@@ -30,6 +32,11 @@ sdl2::Renderer::~Renderer()
 bool sdl2::Renderer::set_logical_presentation(int width, int height)
 {
     return SDL_RenderSetLogicalSize(m_renderer, width, height) == 0;
+}
+
+bool sdl2::Renderer::set_render_target(std::shared_ptr<sdl2::Texture> target)
+{
+    return SDL_SetRenderTarget(m_renderer, target->m_texture) == 0;
 }
 
 bool sdl2::Renderer::frame_begin(SDL_Color clearColor)

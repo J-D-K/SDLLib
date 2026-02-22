@@ -15,6 +15,9 @@ namespace sdl2
     class Texture final : public sdl2::CoreComponent
     {
         public:
+            /// @brief Null texture for targeting the main frame buffer.
+            static inline std::shared_ptr<sdl2::Texture> null = std::make_shared<sdl2::Texture>();
+
             /// @brief Default constructor.
             Texture() = default;
 
@@ -87,6 +90,9 @@ namespace sdl2
             /// @brief Initializes the Texture class.
             /// @param renderer Reference to renderer that textures shall belong to.
             static void initialize(const sdl2::Renderer &renderer);
+
+            /// @brief Allows the renderer to set targets easier.
+            friend class Renderer;
 
         private:
             /// @brief Underlying SDL_Texture.
