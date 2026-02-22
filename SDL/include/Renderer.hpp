@@ -31,12 +31,21 @@ namespace sdl2
             /// @return True on success. False on failure.
             bool set_render_target(std::shared_ptr<sdl2::Texture> target);
 
+            /// @brief Sets the render color to the color passed.
+            bool set_draw_color(SDL_Color color);
+
             /// @brief Begins the frame and clears the target to the color passed.
             /// @param clearColor Color to clear the target with.
             bool frame_begin(SDL_Color clearColor);
 
             /// @brief Ends the render process and presents the target.
             void frame_end();
+
+            /// @brief Renders a rectangle using the arguments passed.
+            bool render_rectangle(int x, int y, int width, int height, SDL_Color color);
+
+            /// @brief Renders a line using the arguments passed.
+            bool render_line(int xA, int yA, int xB, int yB, SDL_Color color);
 
             /// @brief This allows the texture class to access and use the renderer easier.
             friend class Texture;
