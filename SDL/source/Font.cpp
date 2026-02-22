@@ -129,14 +129,14 @@ void sdl2::Font::render_text_wrapped(int x, int y, SDL_Color color, int maxWidth
     for (int i = 0; i < textLength;)
     {
         // Find the next breakpoint.
-        const size_t breakpoint = text.find_first_of(". ", i);
+        size_t breakpoint = text.find_first_of(". ", i);
         if (breakpoint != text.npos) { ++breakpoint; }
 
         // Store the substring as a word.
         const std::string_view word = text.substr(i, breakpoint - i);
 
         // Grab the width and see if we need to break the line.
-        const size_t wordWidth = Font::get_text_width(word);
+        const int wordWidth = Font::get_text_width(word);
         if (x + wordWidth >= maxPosition) { break_line(); }
 
         // Just call the other render cause screw writing it all again.
@@ -175,6 +175,8 @@ int sdl2::Font::get_text_width(std::string_view text)
         textWidth += glyph->get().advanceX;
         i += unitCount;
     }
+
+    return textWidth;
 }
 
 //                      ---- Protected Functions ----
