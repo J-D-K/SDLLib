@@ -43,7 +43,7 @@ bool sdl2::Renderer::set_render_target(std::shared_ptr<sdl2::Texture> target)
 
 bool sdl2::Renderer::set_draw_color(SDL_Color color)
 {
-    return SDL_SetRenderDrawColor(m_renderer, color.r, color.g, color.b, color.g) == 0;
+    return SDL_SetRenderDrawColor(m_renderer, color.r, color.g, color.b, color.a) == 0;
 }
 
 bool sdl2::Renderer::frame_begin(SDL_Color clearColor)
