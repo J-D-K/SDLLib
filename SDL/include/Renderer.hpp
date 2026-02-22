@@ -21,6 +21,10 @@ namespace sdl2
             /// @brief Destructs renderer.
             ~Renderer();
 
+            /// @brief Initializes the renderer.
+            /// @param window Window.
+            void create(sdl2::Window &window);
+
             /// @brief Sets the logical width and height of the renderer.
             /// @param width Width of the renderer.
             /// @param height Height of the renderer.

@@ -12,6 +12,9 @@ namespace sdl2
     class Window final : public sdl2::CoreComponent
     {
         public:
+            /// @brief Default constructor.
+            Window() = default;
+
             /// @brief Creates the SDL2 window.
             /// @param windowWidth Width of the window.
             /// @param windowHeight Height of the window.
@@ -19,6 +22,11 @@ namespace sdl2
 
             /// @brief Destroys the SDL2 Window.
             ~Window();
+
+            /// @brief Creates the window using the arguments passed.
+            /// @param windowWidth
+            /// @param windowHeight
+            void create(int windowWidth, int windowHeight);
 
             /// @brief This allows the Renderer class to access the window directly.
             friend class Renderer;

@@ -12,13 +12,7 @@ namespace
 
 //                      ---- Construction ----
 
-sdl2::Renderer::Renderer(sdl2::Window &window)
-{
-    m_renderer = SDL_CreateRenderer(window.m_window, -1, SDL_RENDER_FLAGS);
-    if (!m_renderer) { return; }
-
-    m_isInitialized = true;
-}
+sdl2::Renderer::Renderer(sdl2::Window &window) { Renderer::create(window); }
 
 sdl2::Renderer::~Renderer()
 {
@@ -28,6 +22,14 @@ sdl2::Renderer::~Renderer()
 }
 
 //                      ---- Public Functions ----
+
+void sdl2::Renderer::create(sdl2::Window &window)
+{
+    m_renderer = SDL_CreateRenderer(window.m_window, -1, SDL_RENDER_FLAGS);
+    if (!m_renderer) { return; }
+
+    m_isInitialized = true;
+}
 
 bool sdl2::Renderer::set_logical_presentation(int width, int height)
 {
