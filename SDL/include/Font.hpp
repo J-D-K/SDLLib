@@ -61,11 +61,11 @@ namespace sdl2
 
             /// @brief Adds a list of breakpoints to the breakpoint list.
             /// @param pointList List of breakpoints to add.
-            static void add_break_points(std::initializer_list<uint32_t> pointList);
+            static void add_break_points(std::initializer_list<const uint32_t> pointList);
 
             /// @brief Adds a span of codepoints to the line breaking list.
             /// @param pointSpan Span of codepoints to believe.
-            static void add_break_points(std::span<uint32_t> pointSpan);
+            static void add_break_points(std::span<const uint32_t> pointSpan);
 
             /// @brief Adds a codepoint to the array of characters that change rendering color.
             /// @param codepoint Codepoint to enable color changing for.
@@ -74,11 +74,11 @@ namespace sdl2
 
             /// @brief Adds a list of color changing codepoints.
             /// @param pointList Initializer list of color changing points paired with their color.
-            static void add_color_points(std::initializer_list<std::pair<uint32_t, SDL_Color>> pointList);
+            static void add_color_points(std::initializer_list<const std::pair<uint32_t, SDL_Color>> pointList);
 
             /// @brief Adds a list of color changing codepoints.
             /// @param pointSpan Span containing codepoints paired with their color.
-            static void add_color_points(std::span<std::pair<uint32_t, SDL_Color>> pointSpan);
+            static void add_color_points(std::span<const std::pair<uint32_t, SDL_Color>> pointSpan);
 
         protected:
             /// @brief Stores the pixel size of the font.
@@ -126,5 +126,11 @@ namespace sdl2
 
             /// @brief Returns the color of the codepoint passed.
             SDL_Color get_point_color(uint32_t codepoint) const noexcept;
+
+            /// @brief Handles changing rendering color on the fly according to the codepoint passed.
+            /// @param codepoint Color changing codepoint.
+            /// @param originalColor The original color passed to the render_text(_x) function.
+            /// @param renderColor The color currently being used for rendering.
+            void change_text_color(uint32_t codepoint, SDL_Color originalColor, SDL_Color &renderColor) const noexcept;
     };
 }

@@ -1,5 +1,7 @@
 #include "Font.hpp"
 
+#include "color_compare.hpp"
+
 #include <algorithm>
 #include <filesystem>
 #include <format>
@@ -57,6 +59,9 @@ void sdl2::Font::render_text(int x, int y, SDL_Color color, std::string_view tex
     // Need to store this for line breaks.
     const int originalX = x;
 
+    // Need to store this too for color changing.
+    const SDL_Color originalColor = color;
+
     const size_t length = text.length();
     for (size_t i = 0; i < length;)
     {
@@ -72,6 +77,11 @@ void sdl2::Font::render_text(int x, int y, SDL_Color color, std::string_view tex
         {
             x = originalX;
             y += m_pixelSize * 1.25;
+            continue;
+        }
+        else if (Font::is_color_point(codepoint))
+        {
+            Font::change_text_color(codepoint, originalColor, color);
             continue;
         }
 
@@ -100,7 +110,8 @@ void sdl2::Font::render_text(int x, int y, SDL_Color color, std::string_view tex
 void sdl2::Font::render_text_wrapped(int x, int y, SDL_Color color, int maxWidth, std::string_view text)
 {
     // Store this for later.
-    const int originalX = x;
+    const int originalX           = x;
+    const SDL_Color originalColor = color;
 
     // Adjusted max position.
     const int maxPosition = x + maxWidth;
@@ -143,6 +154,11 @@ void sdl2::Font::render_text_wrapped(int x, int y, SDL_Color color, int maxWidth
             else if (codepoint == LINE_BREAK)
             {
                 break_line();
+                continue;
+            }
+            else if (Font::is_color_point(codepoint))
+            {
+                Font::change_text_color(codepoint, originalColor, color);
                 continue;
             }
 
@@ -199,12 +215,12 @@ int sdl2::Font::get_text_width(std::string_view text)
 
 void sdl2::Font::add_break_point(uint32_t codepoint) { sm_breakPoints.push_back(codepoint); }
 
-void sdl2::Font::add_break_points(std::initializer_list<uint32_t> pointList)
+void sdl2::Font::add_break_points(std::initializer_list<const uint32_t> pointList)
 {
     for (uint32_t point : pointList) { sm_breakPoints.push_back(point); }
 }
 
-void sdl2::Font::add_break_points(std::span<uint32_t> pointSpan)
+void sdl2::Font::add_break_points(std::span<const uint32_t> pointSpan)
 {
     for (uint32_t point : pointSpan) { sm_breakPoints.push_back(point); }
 }
@@ -214,14 +230,14 @@ void sdl2::Font::add_color_point(uint32_t codepoint, SDL_Color color)
     sm_colorPoints.push_back(std::make_pair(codepoint, color));
 }
 
-void sdl2::Font::add_color_points(std::initializer_list<std::pair<uint32_t, SDL_Color>> pointList)
+void sdl2::Font::add_color_points(std::initializer_list<const std::pair<uint32_t, SDL_Color>> pointList)
 {
-    for (auto pair : pointList) { sm_colorPoints.push_back(pair); }
+    for (const auto &pair : pointList) { sm_colorPoints.push_back(pair); }
 }
 
-void sdl2::Font::add_color_points(std::span<std::pair<uint32_t, SDL_Color>> pointSpan)
+void sdl2::Font::add_color_points(std::span<const std::pair<uint32_t, SDL_Color>> pointSpan)
 {
-    for (const auto pair : pointSpan) { sm_colorPoints.push_back(pair); }
+    for (const auto &pair : pointSpan) { sm_colorPoints.push_back(pair); }
 }
 
 //                      ---- Protected Functions ----
@@ -323,4 +339,10 @@ SDL_Color sdl2::Font::get_point_color(uint32_t codepoint) const noexcept
     if (findPair == sm_colorPoints.end()) { return static_cast<SDL_Color>(0); }
 
     return findPair->second;
+}
+
+void sdl2::Font::change_text_color(uint32_t codepoint, SDL_Color originalColor, SDL_Color &renderColor) const noexcept
+{
+    const SDL_Color pointColor = Font::get_point_color(codepoint);
+    renderColor                = renderColor == originalColor ? pointColor : originalColor;
 }

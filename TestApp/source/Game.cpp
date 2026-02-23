@@ -22,7 +22,7 @@ namespace
 
     constexpr std::string_view TEST_WRAP =
         "A really, really, really, really, really, really, really, really, really, really, really, really, really, really, "
-        "really, really, really, really, really, really, really, really, really, really, really, really, really, really, "
+        "really, really, *really*, really, really, really, really, really, really, really, really, really, really, really, "
         "really, really, really, really, really, really, really, really, really, really, really, really, really, really, "
         "really, really, really, really, really, really, really, really, really, really, really, really, really, really, "
         "really, really, really, really, really, really, really, really, really, really, really, really, really, really, "
@@ -49,6 +49,7 @@ Game::Game()
 
     // Init font.
     sdl2::Font::add_break_points({L' ', L'.', L',', L'\n'});
+    sdl2::Font::add_color_point(L'*', {0xFF, 0x00, 0x00, 0xFF});
 
     // Load the system font.
     m_font = sdl2::FontManager::create_load_resource<sdl2::SystemFont>(SYSTEM_FONT_NAME, 10);
@@ -111,8 +112,12 @@ void Game::render()
     // Loop and render.
     for (auto &object : m_objects) { object->render(m_renderer); }
 
-    m_font->render_text(0, 0, WHITE, std::format("Objects: {}\nScore: {}\nLevel: {}", m_objects.size(), m_score, m_level));
-    m_font->render_text_wrapped(0, 128, WHITE, 256, TEST_WRAP);
+    m_font->render_text_wrapped(
+        0,
+        0,
+        WHITE,
+        256,
+        std::format("Objects: {}\nScore: {}\nLevel: {}\n{}", m_objects.size(), m_score, m_level, TEST_WRAP));
 
     // Present.
     m_renderer.frame_end();
