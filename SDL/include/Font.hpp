@@ -4,8 +4,11 @@
 #include "OptionalReference.hpp"
 #include "ResourceManager.hpp"
 
+#include <SDL2/SDL.h>
+#include <span>
 #include <string_view>
 #include <unordered_map>
+#include <vector>
 
 namespace sdl2
 {
@@ -52,6 +55,31 @@ namespace sdl2
             /// @param text Text to get the width of.
             int get_text_width(std::string_view text);
 
+            /// @brief Adds a codepoint to the list of characters to break at for rendering wrapped text.
+            /// @param codepoint Codepoint to enable line breaking at.
+            static void add_break_point(uint32_t codepoint);
+
+            /// @brief Adds a list of breakpoints to the breakpoint list.
+            /// @param pointList List of breakpoints to add.
+            static void add_break_points(std::initializer_list<uint32_t> pointList);
+
+            /// @brief Adds a span of codepoints to the line breaking list.
+            /// @param pointSpan Span of codepoints to believe.
+            static void add_break_points(std::span<uint32_t> pointSpan);
+
+            /// @brief Adds a codepoint to the array of characters that change rendering color.
+            /// @param codepoint Codepoint to enable color changing for.
+            /// @param color Color to change to.
+            static void add_color_point(uint32_t codepoint, SDL_Color color);
+
+            /// @brief Adds a list of color changing codepoints.
+            /// @param pointList Initializer list of color changing points paired with their color.
+            static void add_color_points(std::initializer_list<std::pair<uint32_t, SDL_Color>> pointList);
+
+            /// @brief Adds a list of color changing codepoints.
+            /// @param pointSpan Span containing codepoints paired with their color.
+            static void add_color_points(std::span<std::pair<uint32_t, SDL_Color>> pointSpan);
+
         protected:
             /// @brief Stores the pixel size of the font.
             int m_pixelSize{};
@@ -77,5 +105,26 @@ namespace sdl2
             /// @param codepoint Glyph codepoint.
             /// @param glyphBitmap Bitmap of the glyph.
             sdl2::SharedTexture convert_glyph_to_texture(uint32_t codepoint, const FT_Bitmap glyphBitmap);
+
+        private:
+            /// @brief Vector of breakpoints for wrapping.
+            static inline std::vector<uint32_t> sm_breakPoints{};
+
+            /// @brief Vector of color changing codepoints.
+            static inline std::vector<std::pair<uint32_t, SDL_Color>> sm_colorPoints{};
+
+            /// @brief Locates the next breakpoint in the string starting from i.
+            size_t find_next_breakpoint(std::string_view string);
+
+            /// @brief Returns whether or not the codepoint passed is a breakpoint.
+            /// @param codepoint Codepoint to check.
+            bool is_breakpoint(uint32_t codepoint) const noexcept;
+
+            /// @brief Returns whether or not the codepoint passed is a color changing codepoint.
+            /// @param codepoint Codepoint to check.
+            bool is_color_point(uint32_t codepoint) const noexcept;
+
+            /// @brief Returns the color of the codepoint passed.
+            SDL_Color get_point_color(uint32_t codepoint) const noexcept;
     };
 }

@@ -1,10 +1,16 @@
 #include "Font.hpp"
 
+#include <algorithm>
 #include <filesystem>
 #include <format>
 #include <fstream>
 #include <span>
 #include <switch.h>
+
+namespace
+{
+    constexpr uint32_t LINE_BREAK = L'\n';
+}
 
 //                      ---- Construction ----
 
@@ -60,30 +66,21 @@ void sdl2::Font::render_text(int x, int y, SDL_Color color, std::string_view tex
         // Decode the codepoint.
         uint32_t codepoint{};
         ssize_t unitCount = decode_utf8(&codepoint, string);
+        i += unitCount <= 0 ? 0 : unitCount;
         if (unitCount <= 0) { break; } // Break the loop since something funky happened.
-
-        // Handle line breaks.
-        if (codepoint == L'\n')
+        else if (codepoint == LINE_BREAK)
         {
             x = originalX;
-            y += m_pixelSize + (m_pixelSize / 4);
-            i += unitCount;
+            y += m_pixelSize * 1.25;
             continue;
         }
 
         // Try to find the glyph.
         const auto getGlyph = find_load_glyph(codepoint);
-        // If the optional is empty, just continue the loop. No glyph was found.
-        if (!getGlyph.has_value())
-        {
-            i += unitCount;
-            continue;
-        }
+        if (!getGlyph.has_value()) { continue; }
 
         // Data reference to make things easier.
         const Font::GlyphData &glyphData = getGlyph->get();
-
-        // Only render the glyph if it's not space.
         if (codepoint != L' ')
         {
             // Render coordinates.
@@ -92,15 +89,11 @@ void sdl2::Font::render_text(int x, int y, SDL_Color color, std::string_view tex
 
             // Set render color.
             glyphData.texture->set_color_mod(color);
-
             glyphData.texture->render(renderX, renderY);
         }
 
         // Move our rendering point.
         x += glyphData.advanceX;
-
-        // Increase i.
-        i += unitCount;
     }
 }
 
@@ -122,28 +115,55 @@ void sdl2::Font::render_text_wrapped(int x, int y, SDL_Color color, int maxWidth
     auto break_line = [&]()
     {
         x = originalX;
-        y += m_pixelSize * 1.2;
+        y += m_pixelSize * 1.25;
         currentWidth = 0;
     };
 
     for (int i = 0; i < textLength;)
     {
         // Find the next breakpoint.
-        size_t breakpoint = text.find_first_of(". ", i);
-        if (breakpoint != text.npos) { ++breakpoint; }
+        const size_t nextBreakpoint = Font::find_next_breakpoint(text.substr(i));
 
         // Store the substring as a word.
-        const std::string_view word = text.substr(i, breakpoint - i);
+        const std::string_view word = text.substr(i, nextBreakpoint);
 
         // Grab the width and see if we need to break the line.
         const int wordWidth = Font::get_text_width(word);
         if (x + wordWidth >= maxPosition) { break_line(); }
 
-        // Just call the other render cause screw writing it all again.
-        Font::render_text(x, y, color, text);
+        // Word render loop.
+        const int wordLength = word.length();
+        for (int j = 0; j < wordLength;)
+        {
+            uint32_t codepoint{};
+            const uint8_t *point    = reinterpret_cast<const uint8_t *>(&word[j]);
+            const ssize_t unitCount = decode_utf8(&codepoint, point);
+            j += unitCount <= 0 ? 0 : unitCount;
+            if (unitCount <= 0) { break; }
+            else if (codepoint == LINE_BREAK)
+            {
+                break_line();
+                continue;
+            }
+
+            const auto getGlyph = find_load_glyph(codepoint);
+            if (!getGlyph.has_value()) { continue; }
+
+            Font::GlyphData &glyphData = getGlyph->get();
+            if (codepoint != L' ')
+            {
+                const int renderX = x + glyphData.left;
+                const int renderY = y + (m_pixelSize - glyphData.top);
+
+                glyphData.texture->set_color_mod(color);
+                glyphData.texture->render(renderX, renderY);
+            }
+
+            x += glyphData.advanceX;
+        }
 
         // Realign.
-        i += word.length();
+        i += wordLength;
         currentWidth += wordWidth;
     }
 }
@@ -154,29 +174,54 @@ int sdl2::Font::get_text_width(std::string_view text)
     int textWidth{};
 
     const int textLength = text.length();
-
     for (int i = 0; i < textLength;)
     {
-        const uint8_t *string = reinterpret_cast<const uint8_t *>(&text[i]);
-
         uint32_t codepoint{};
-        const ssize_t unitCount = decode_utf8(&codepoint, string);
-        if (unitCount <= 0) {}
-        else if (codepoint == L'\n')
-        {
-            i += unitCount;
-            continue;
-        } // Ignore line breaks.
+        const uint8_t *point    = reinterpret_cast<const uint8_t *>(&text[i]);
+        const ssize_t unitCount = decode_utf8(&codepoint, point);
+
+        i += unitCount <= 0 ? 0 : unitCount;
+        if (unitCount <= 0) { return textWidth; }
+        else if (codepoint == LINE_BREAK) { continue; } // Ignore line breaks.
 
         // Load glyph.
-        auto glyph = Font::find_load_glyph(codepoint);
-        if (!glyph.has_value()) { continue; }
+        const auto getGlyph = find_load_glyph(codepoint);
+        if (!getGlyph.has_value()) { continue; }
 
-        textWidth += glyph->get().advanceX;
-        i += unitCount;
+        const Font::GlyphData &glyphData = getGlyph->get();
+        textWidth += glyphData.advanceX;
     }
 
     return textWidth;
+}
+
+//                      ---- Public, static functions ----
+
+void sdl2::Font::add_break_point(uint32_t codepoint) { sm_breakPoints.push_back(codepoint); }
+
+void sdl2::Font::add_break_points(std::initializer_list<uint32_t> pointList)
+{
+    for (uint32_t point : pointList) { sm_breakPoints.push_back(point); }
+}
+
+void sdl2::Font::add_break_points(std::span<uint32_t> pointSpan)
+{
+    for (uint32_t point : pointSpan) { sm_breakPoints.push_back(point); }
+}
+
+void sdl2::Font::add_color_point(uint32_t codepoint, SDL_Color color)
+{
+    sm_colorPoints.push_back(std::make_pair(codepoint, color));
+}
+
+void sdl2::Font::add_color_points(std::initializer_list<std::pair<uint32_t, SDL_Color>> pointList)
+{
+    for (auto pair : pointList) { sm_colorPoints.push_back(pair); }
+}
+
+void sdl2::Font::add_color_points(std::span<std::pair<uint32_t, SDL_Color>> pointSpan)
+{
+    for (const auto pair : pointSpan) { sm_colorPoints.push_back(pair); }
 }
 
 //                      ---- Protected Functions ----
@@ -220,7 +265,6 @@ sdl2::SharedTexture sdl2::Font::convert_glyph_to_texture(uint32_t codepoint, con
 {
     // Base pixel color for constructing pixels.
     static constexpr uint32_t BASE_PIXEL_COLOR = 0xFFFFFF00;
-    // static constexpr uint32_t BASE_PIXEL_COLOR = 0x00000000;
 
     // This makes things easier to read later.
     const size_t bitmapSize = glyphBitmap.width * glyphBitmap.rows;
@@ -238,6 +282,45 @@ sdl2::SharedTexture sdl2::Font::convert_glyph_to_texture(uint32_t codepoint, con
 
     // Name for the glyph.
     const std::string glyphName = std::format("{:08x} - {}", codepoint, m_pixelSize);
-
     return sdl2::TextureManager::create_load_resource(glyphName, glyphSurface);
+}
+
+//                      ---- Private Functions ----
+
+size_t sdl2::Font::find_next_breakpoint(std::string_view string)
+{
+    const int stringLength = string.length();
+    for (int i = 0; i < stringLength;)
+    {
+        uint32_t codepoint{};
+        const uint8_t *nextPoint = reinterpret_cast<const uint8_t *>(&string[i]);
+
+        const ssize_t unitCount = decode_utf8(&codepoint, nextPoint);
+        if (unitCount <= 0) { return string.npos; }
+        else if (Font::is_breakpoint(codepoint)) { return i + unitCount; }
+
+        i += unitCount;
+    }
+    return string.npos;
+}
+
+bool sdl2::Font::is_breakpoint(uint32_t codepoint) const noexcept
+{
+    auto match = [=](const uint32_t point) { return point == codepoint; };
+    return std::find_if(sm_breakPoints.begin(), sm_breakPoints.end(), match) != sm_breakPoints.end();
+}
+
+bool sdl2::Font::is_color_point(uint32_t codepoint) const noexcept
+{
+    auto match = [=](const auto &pair) { return pair.first == codepoint; };
+    return std::find_if(sm_colorPoints.begin(), sm_colorPoints.end(), match) != sm_colorPoints.end();
+}
+
+SDL_Color sdl2::Font::get_point_color(uint32_t codepoint) const noexcept
+{
+    auto match    = [=](const auto &pair) { return pair.first == codepoint; };
+    auto findPair = std::find_if(sm_colorPoints.begin(), sm_colorPoints.end(), match);
+    if (findPair == sm_colorPoints.end()) { return static_cast<SDL_Color>(0); }
+
+    return findPair->second;
 }

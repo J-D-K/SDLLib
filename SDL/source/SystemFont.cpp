@@ -39,8 +39,6 @@ sdl2::SystemFont::~SystemFont()
 
 OptionalReference<sdl2::Font::GlyphData> sdl2::SystemFont::find_load_glyph(uint32_t codepoint)
 {
-    std::ofstream sysFontDebug{"sdmc:/sysfont.txt"};
-
     // Search first.
     const auto findGlyph = m_cacheMap.find(codepoint);
     if (findGlyph != m_cacheMap.end()) { return findGlyph->second; }
@@ -56,7 +54,6 @@ OptionalReference<sdl2::Font::GlyphData> sdl2::SystemFont::find_load_glyph(uint3
         charIndex = FT_Get_Char_Index(currentFace, codepoint);
         if (charIndex != 0)
         {
-            sysFontDebug << "Character found?" << std::endl;
             fontFace = currentFace;
             break;
         }
@@ -64,12 +61,10 @@ OptionalReference<sdl2::Font::GlyphData> sdl2::SystemFont::find_load_glyph(uint3
 
     // If the character index is still 0 here, bail.
     if (charIndex == 0) { return std::nullopt; }
-    sysFontDebug << "charIndex" << charIndex << std::endl;
 
     // Load and render the glyph.
     const FT_Error loadError = FT_Load_Glyph(fontFace, charIndex, FT_LOAD_RENDER);
     if (loadError != 0) { return std::nullopt; }
-    sysFontDebug << "Character rendered." << std::endl;
 
     // Make things easier to read and type.
     const FT_GlyphSlot glyphSlot = fontFace->glyph;
@@ -77,7 +72,6 @@ OptionalReference<sdl2::Font::GlyphData> sdl2::SystemFont::find_load_glyph(uint3
 
     // Convert.
     sdl2::SharedTexture glyphTexture = Font::convert_glyph_to_texture(codepoint, glyphBitmap);
-    sysFontDebug << "Texture" << std::endl;
 
     // Data for cache.
     const Font::GlyphData cacheData = {.advanceX = static_cast<int16_t>(glyphSlot->advance.x >> 6),
@@ -88,7 +82,6 @@ OptionalReference<sdl2::Font::GlyphData> sdl2::SystemFont::find_load_glyph(uint3
     // Map is weird and returns this as a pair?
     const auto emplacePair = m_cacheMap.try_emplace(codepoint, cacheData);
     if (!emplacePair.second) { return std::nullopt; }
-    sysFontDebug << "Emplace" << std::endl;
 
     // Finally return.
     return m_cacheMap.at(codepoint);

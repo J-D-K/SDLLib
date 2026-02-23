@@ -3,6 +3,7 @@
 #include "Background.hpp"
 #include "Bullet.hpp"
 #include "Enemy.hpp"
+#include "Logger.hpp"
 #include "Player.hpp"
 #include "random.hpp"
 #include "window.hpp"
@@ -18,6 +19,15 @@ namespace
     constexpr std::string_view SYSTEM_FONT_NAME = "SystemFont";
     constexpr std::string_view FONT_PATH        = "romfs:/assets/MainFont.ttf";
     constexpr int FONT_SIZE                     = 24;
+
+    constexpr std::string_view TEST_WRAP =
+        "A really, really, really, really, really, really, really, really, really, really, really, really, really, really, "
+        "really, really, really, really, really, really, really, really, really, really, really, really, really, really, "
+        "really, really, really, really, really, really, really, really, really, really, really, really, really, really, "
+        "really, really, really, really, really, really, really, really, really, really, really, really, really, really, "
+        "really, really, really, really, really, really, really, really, really, really, really, really, really, really, "
+        "really, really, really, really, really, really, really, really, really, really, really, really, really, really, "
+        "really, really, really, really, really, really, really, really, really, really, really, long string to wrap. Pls.";
 }
 
 //                      ---- Construction ----
@@ -37,11 +47,11 @@ Game::Game()
     // Init textures.
     sdl2::Texture::initialize(m_renderer);
 
+    // Init font.
+    sdl2::Font::add_break_points({L' ', L'.', L',', L'\n'});
+
     // Load the system font.
     m_font = sdl2::FontManager::create_load_resource<sdl2::SystemFont>(SYSTEM_FONT_NAME, 10);
-
-    // Reserve space.
-    m_objects.reserve(1024);
 
     // Create the background.
     Game::create_add_object<Background>();
@@ -102,6 +112,7 @@ void Game::render()
     for (auto &object : m_objects) { object->render(m_renderer); }
 
     m_font->render_text(0, 0, WHITE, std::format("Objects: {}\nScore: {}\nLevel: {}", m_objects.size(), m_score, m_level));
+    m_font->render_text_wrapped(0, 128, WHITE, 256, TEST_WRAP);
 
     // Present.
     m_renderer.frame_end();

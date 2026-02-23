@@ -2,6 +2,7 @@
 #include "Object.hpp"
 #include "sdl.hpp"
 
+#include <fstream>
 #include <span>
 #include <vector>
 
@@ -53,7 +54,7 @@ class Game final
         sdl2::SharedFont m_font{};
 
         /// @brief Vector of objects.
-        std::vector<UniqueObject> m_objects{};
+        std::vector<UniqueObject> m_objects;
 
         /// @brief Current score for the game.
         int m_score{};
