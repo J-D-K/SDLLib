@@ -37,6 +37,9 @@ namespace sdl2
             /// @brief Destructs the font.
             virtual ~Font();
 
+            /// @brief Returns the pixel size of the font.
+            int get_pixel_size() const noexcept;
+
             /// @brief Renders text at the coordinates provided.
             /// @param x X coordinate.
             /// @param y Y coordinate.

@@ -54,6 +54,8 @@ sdl2::Font::~Font()
 
 //                      ---- Public Functions ----
 
+int sdl2::Font::get_pixel_size() const noexcept { return m_pixelSize; }
+
 void sdl2::Font::render_text(int x, int y, SDL_Color color, std::string_view text)
 {
     // Need to store this for line breaks.
