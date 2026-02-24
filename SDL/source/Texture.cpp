@@ -56,6 +56,8 @@ int sdl2::Texture::get_width() const noexcept { return m_width; }
 
 int sdl2::Texture::get_height() const noexcept { return m_height; }
 
+bool sdl2::Texture::set_blend_mode(SDL_BlendMode mode) { return SDL_SetTextureBlendMode(m_texture, mode) == 0; }
+
 bool sdl2::Texture::set_color_mod(SDL_Color color) { return SDL_SetTextureColorMod(m_texture, color.r, color.g, color.b) == 0; }
 
 bool sdl2::Texture::render(int x, int y)

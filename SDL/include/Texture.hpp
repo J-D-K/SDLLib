@@ -44,6 +44,10 @@ namespace sdl2
             /// @brief Returns the height of the texture.
             int get_height() const noexcept;
 
+            /// @brief Sets the blending mode of the texture.
+            /// @param mode Mode to set.
+            bool set_blend_mode(SDL_BlendMode mode);
+
             /// @brief Sets the color mod of the texture.
             /// @param color Color to set the mod to.
             bool set_color_mod(SDL_Color color);
