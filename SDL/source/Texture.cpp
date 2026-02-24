@@ -86,7 +86,7 @@ bool sdl2::Texture::render_stretched(int x, int y, int width, int height)
     RETURN_ON_INVALID_TEXTURE(sm_renderer, m_texture);
 
     const SDL_Rect sourceRect = {.x = 0, .y = 0, .w = m_width, .h = m_height};
-    const SDL_Rect destRect   = {.x = x, .y = y, .w = width, .h = m_height};
+    const SDL_Rect destRect   = {.x = x, .y = y, .w = width, .h = height};
 
     return SDL_RenderCopy(sm_renderer, m_texture, &sourceRect, &destRect) == 0;
 }
