@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Audio.hpp"
 #include "Font.hpp"
 #include "Input.hpp"
 #include "Renderer.hpp"
