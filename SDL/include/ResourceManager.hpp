@@ -1,5 +1,6 @@
 #pragma once
 #include "Font.hpp"
+#include "Sound.hpp"
 #include "Texture.hpp"
 
 #include <memory>
@@ -13,6 +14,9 @@ namespace sdl2
 
     /// @brief Shared font definition.
     using SharedFont = std::shared_ptr<Font>;
+
+    /// @brief Shared sound definition.
+    using SharedSound = std::shared_ptr<Sound>;
 
     /// @brief Templated, generic resource manager.
     /// @tparam ResourceType Type of resource being used.
@@ -143,5 +147,9 @@ namespace sdl2
     /// @brief Texture manager instance.
     using TextureManager = ResourceManager<Texture>;
 
+    /// @brief Font manager instance.
     using FontManager = ResourceManager<Font>;
+
+    /// @brief Sound manager instance.
+    using SoundManager = ResourceManager<Sound>;
 }
