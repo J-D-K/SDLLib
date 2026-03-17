@@ -29,6 +29,11 @@ namespace sdl2
             /// @param surface Surface to create the texture from.
             Texture(sdl2::Surface &surface);
 
+            /// @brief Loads an image from the data passed and creates a texture from it.
+            /// @param data Pointer to image data.
+            /// @param dataSize Size of the image data.
+            Texture(const void *data, size_t dataSize);
+
             /// @brief Creates a blank texture using the arguments passed.
             /// @param width Width of the texture.
             /// @param height Height of the texture.
