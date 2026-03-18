@@ -35,19 +35,19 @@ void sdl2::Renderer::create(sdl2::Window &window)
 }
 
 bool sdl2::Renderer::set_logical_presentation(int width, int height)
+{ return SDL_RenderSetLogicalSize(m_renderer, width, height) == 0; }
+
+bool sdl2::Renderer::set_render_clip(int x, int y, int width, int height)
 {
-    return SDL_RenderSetLogicalSize(m_renderer, width, height) == 0;
+    const SDL_Rect clipRect = {.x = x, .y = y, .w = width, .h = height};
+    return SDL_RenderSetClipRect(m_renderer, &clipRect) == 0;
 }
 
 bool sdl2::Renderer::set_render_target(std::shared_ptr<sdl2::Texture> target)
-{
-    return SDL_SetRenderTarget(m_renderer, target->m_texture) == 0;
-}
+{ return SDL_SetRenderTarget(m_renderer, target->m_texture) == 0; }
 
 bool sdl2::Renderer::set_draw_color(SDL_Color color)
-{
-    return SDL_SetRenderDrawColor(m_renderer, color.r, color.g, color.b, color.a) == 0;
-}
+{ return SDL_SetRenderDrawColor(m_renderer, color.r, color.g, color.b, color.a) == 0; }
 
 bool sdl2::Renderer::frame_begin(SDL_Color clearColor)
 {

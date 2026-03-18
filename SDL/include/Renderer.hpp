@@ -33,6 +33,13 @@ namespace sdl2
             /// @param height Height of the renderer.
             bool set_logical_presentation(int width, int height);
 
+            /// @brief Sets the render clipping area.
+            /// @param x X of the area.
+            /// @param y Y of the area.
+            /// @param width Width of the area.
+            /// @param height Height of the area.
+            bool set_render_clip(int x, int y, int width, int height);
+
             /// @brief Sets the render target.
             /// @param target Target to render to.
             /// @return True on success. False on failure.
