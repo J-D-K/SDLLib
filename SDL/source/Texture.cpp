@@ -38,6 +38,8 @@ sdl2::Texture::Texture(sdl2::Surface &surface)
 
 sdl2::Texture::Texture(const void *data, size_t dataSize)
 {
+    RETURN_ON_INVALID_RENDERER(sm_renderer);
+
     // SDL RWOps.
     SDL_RWops *sdlOps = SDL_RWFromConstMem(data, dataSize);
 

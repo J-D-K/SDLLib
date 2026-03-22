@@ -4,6 +4,7 @@
 
 #include <SDL2/SDL.h>
 #include <memory>
+#include <stack>
 
 namespace sdl2
 {
@@ -67,5 +68,8 @@ namespace sdl2
         private:
             /// @brief SDL Renderer.
             SDL_Renderer *m_renderer{};
+
+            /// @brief This is a  workaround for JKSV more or less.
+            std::stack<std::shared_ptr<sdl2::Texture>> m_targetStack{};
     };
 }
