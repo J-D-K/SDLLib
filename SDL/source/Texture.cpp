@@ -19,7 +19,9 @@ sdl2::Texture::Texture(std::string_view filePath)
     if (!m_texture) { return; }
 
     // Query and get its width and height.
-    SDL_QueryTexture(m_texture, nullptr, nullptr, &m_width, &m_height);
+    const bool query = SDL_QueryTexture(m_texture, nullptr, nullptr, &m_width, &m_height) == 0;
+    const bool blend = Texture::set_blend_mode();
+    if (!query || !blend) { return; }
 
     m_isInitialized = true;
 }
@@ -30,8 +32,10 @@ sdl2::Texture::Texture(sdl2::Surface &surface)
 {
     RETURN_ON_INVALID_RENDERER(sm_renderer);
 
-    m_texture = SDL_CreateTextureFromSurface(sm_renderer, surface.get());
-    if (!m_texture) { return; }
+    // Create texture from surface & blend.
+    m_texture        = SDL_CreateTextureFromSurface(sm_renderer, surface.get());
+    const bool blend = m_texture && Texture::set_blend_mode();
+    if (!m_texture || !blend) { return; }
 
     m_isInitialized = true;
 }
@@ -44,8 +48,9 @@ sdl2::Texture::Texture(const void *data, size_t dataSize)
     SDL_RWops *sdlOps = SDL_RWFromConstMem(data, dataSize);
 
     // Load.
-    m_texture = IMG_LoadTexture_RW(sm_renderer, sdlOps, 1L);
-    if (!m_texture) { return; }
+    m_texture        = IMG_LoadTexture_RW(sm_renderer, sdlOps, 1L);
+    const bool blend = m_texture && Texture::set_blend_mode();
+    if (!m_texture || !blend) { return; }
 
     m_isInitialized = true;
 }
@@ -56,8 +61,9 @@ sdl2::Texture::Texture(int width, int height, SDL_TextureAccess textureAccess)
 {
     RETURN_ON_INVALID_RENDERER(sm_renderer);
 
-    m_texture = SDL_CreateTexture(sm_renderer, SDL_PIXELFORMAT_ARGB8888, textureAccess, width, height);
-    if (!m_texture) { return; }
+    m_texture        = SDL_CreateTexture(sm_renderer, SDL_PIXELFORMAT_ARGB8888, textureAccess, width, height);
+    const bool blend = m_texture && Texture::set_blend_mode();
+    if (!m_texture || !blend) { return; }
 
     m_isInitialized = true;
 }

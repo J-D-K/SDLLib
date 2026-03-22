@@ -228,9 +228,7 @@ void sdl2::Font::add_break_points(std::span<const uint32_t> pointSpan)
 }
 
 void sdl2::Font::add_color_point(uint32_t codepoint, SDL_Color color)
-{
-    sm_colorPoints.push_back(std::make_pair(codepoint, color));
-}
+{ sm_colorPoints.push_back(std::make_pair(codepoint, color)); }
 
 void sdl2::Font::add_color_points(std::initializer_list<const std::pair<uint32_t, SDL_Color>> pointList)
 {

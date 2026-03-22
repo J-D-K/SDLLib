@@ -51,7 +51,7 @@ namespace sdl2
 
             /// @brief Sets the blending mode of the texture.
             /// @param mode Mode to set.
-            bool set_blend_mode(SDL_BlendMode mode);
+            bool set_blend_mode(SDL_BlendMode mode = SDL_BLENDMODE_BLEND);
 
             /// @brief Sets the color mod of the texture.
             /// @param color Color to set the mod to.
